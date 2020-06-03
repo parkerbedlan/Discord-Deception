@@ -30,6 +30,7 @@ client.on('message', async msg => {
             break;
         case "debug":
             msg.channel.send('this is a test 123');
+            break;
         default:
             if (msg.content.substring(1,2) != " ") {
                 msg.reply("That's not a command. To see the full list of commands, type \"?help\".")
