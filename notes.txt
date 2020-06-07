@@ -1,0 +1,51 @@
+all based on these rules https://youtu.be/vwJaNNV5KTE (look into JustKiddingParty's rules instead?)
+secret role ratios according to vid:
+    mafia = 1/4 of total, up to 4
+	police = mafia - 1
+	1 doctor
+	the rest are townspeople/innocent
+
+
+?mafia command plan:
+	[note: extensive rule explanation before each phase, requesting thumbs up from everybody before it starts and timer begins]
+	[note: log all win/loss data, including starting players/roles, who was left, and which team won]
+	[note: maybe have defaults, but some settings changes the host can control, like if the dead reveal their roles]
+	- make sure you have the necessary permissions, and say which ones you lack before starting.
+	- poll "Like this comment if you wanna play." and show the role ratio for the current number (bolded), one more, and one less
+	- reply to the host "type ?ready when everyone has joined."
+	- on ?ready, set all players to the 'Citizen #' Role, each assigned a number (or not?)
+	- create "Mafia Game" CategoryChannel
+		only the 'Citizen' Role can be in it, using PermissionOverwrites
+	- create "Town Hall" voice channel
+		userLimit = number of players
+	- create "public record" text channel
+	- create "evil lair" text channel
+		only mafia are allowed to talk in here, *** and ONLY during killing phase at night (change permissions each nighttime)
+	- create "police station" text channel
+		same boat, only police, and only during their specific time at night
+	- "All of you have been DMed your secret roles. Like this message to confirm you've received yours. Night will start when everyone has liked this comment."
+		make a ring (maybe mute everyone) and shortened text to speech announcement in the voice chat mentioning the message 
+			maybe do this for all bot messages
+	- Night phase:
+		- everyone is muted and video is turned off
+		- mafia use ?kill @player command in evil lair to decide who to kill only once (have a countdown timer for who they kill, or nobody is killed. make sure the person they try to kill isn't already dead.) then they're kicked
+		- police use ?investigate @player (or ?inspect maybe) only once, and bot tells their secret role
+		- doctor uses ?protect @player only once
+	- Morning phase:
+		- everyone is unmuted and video is turned back on (they wake up)
+		- funny story is told about how the victim died (and maybe rescued; that's where the suspense comes in) in the text channel
+		- if they die, their identity is revealed (or not?) and they're immediately kicked from the CategoryChannel, with the userLimit-- for the voice channel
+	- Daytime Trial phase:
+		- to be put on trial, a person needs to recieve ?accuse ?second ?third @player by 3 different people
+			- maybe show tracker for each person being accused, seconded, thirded somehow, maybe an updating comment that stays at the bottom of the chat at all times
+			- no more than one trial per daytime
+			- if nobody is put on trial, it jumps to nighttime without a trial
+				wait until things die down before timer starts (nobody accuses/seconds/thirds in, say, 1 minute, w more time at start)
+		- accuser is put on trial with the accused. accuser gets 30s to say why he should die (everyone else muted). accused gets 30s to defend.
+		- simultaneous vote whether to hang accuser
+			- if he dies, same situation as if killed by mafia
+		- if he lives, accuser gives 30s defense of themself, then simultaneous bote whether to hang them
+		(alternate rules: 2 people get accused and one of those two people must die)
+	- Game ends if:
+		-all mafia die (innocent win)
+		-3 people are left and 1 is mafia (mafia win)
