@@ -19,24 +19,20 @@ client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`) 
 })
 
-client.on('message', async msg => {  
-    if(msg.content.startsWith('?')) {
-       switch(msg.content.substring(1)) {
-        case "ping":
-            msg.reply("Pong!")
-            break
-        case "help":
-            msg.channel.send(commandList)
-            break
-        case "debug":
-            msg.channel.send('this is a test 123')
-            break
-        default:
-            if (msg.content.substring(1,2) != " ") {
-                msg.reply("That's not a command. To see the full list of commands, type \"?help\".")
-            }
-            break
-       }
+client.on('message', async msg => {
+    if (!msg.content.startsWith('?')) return
+
+    if (msg.content == '?ping')
+    {
+        msg.reply('Pong!')
+    }
+    else if(msg.content == '?help')
+    {
+        msg.channel.send(commandList)
+    }
+    else if(msg.content.substring(1,2) != " ")
+    {
+        msg.reply("That's not a command. To see the full list of commands, type \"?help\".")
     }
 })
 
