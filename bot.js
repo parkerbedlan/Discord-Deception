@@ -1,6 +1,7 @@
 require("dotenv").config()
-const Discord = require('discord.js') 
-const client = new Discord.Client()  
+const Discord = require('discord.js')
+const client = new Discord.Client()
+const mafia = require('./commands/mafia')
 
 const commandList = new Discord.MessageEmbed()
     .setColor("#8c9eff")
@@ -15,7 +16,7 @@ const commandList = new Discord.MessageEmbed()
             "```"
     })
 
-client.on('ready', () => {   
+client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`) 
 })
 
@@ -29,6 +30,10 @@ client.on('message', async msg => {
     else if(msg.content == '?help')
     {
         msg.channel.send(commandList)
+    }
+    else if(msg.content.toLowerCase().startsWith('?mafia'))
+    {
+        mafia(msg)
     }
     else if(msg.content.substring(1,2) != " ")
     {
