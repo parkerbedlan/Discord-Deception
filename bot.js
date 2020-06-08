@@ -17,10 +17,17 @@ const commandList = new Discord.MessageEmbed()
     })
 
 client.on('ready', () => {
-    console.log(`Logged in as ${client.user.tag}!`) 
+    console.log(`Logged in as ${client.user.tag}!`)
+    client.user.setPresence({activity: {name: "Discord Deception | use ?help", type: "PLAYING"}, status:"online"})
+})
+
+client.on('guildCreate', guild => {
+    module.exports.getGeneralTextChannel(guild).send("Hi, I'm the Discord Deception Bot, thanks for adding me! I'm a bot for hosting fun deception games like Mafia, and an original one called InsertCoolNewName!")
+    module.exports.getGeneralTextChannel(guild).send("Use ?help to see what I can do.")
 })
 
 client.on('message', async msg => {
+
     if (!msg.content.startsWith('?')) return
 
     if (msg.content == '?ping')
@@ -42,3 +49,21 @@ client.on('message', async msg => {
 })
 
 client.login(process.env.BOT_TOKEN)
+
+module.exports = {
+
+    getChannel(guild, type, name = "", index = -1)
+    {
+        return guild.channels.cache.find(ch => (ch.type==type && ch.name==name))
+    },
+
+    getGeneralTextChannel(guild)
+    {
+        let general = module.exports.getChannel(guild, 'text', 'general')
+        if (!general)
+            general = guild.channels.cache.find(ch => (ch.type=='text' && ch.rawPosition == 0))
+        if (!general)
+            return null
+        return general
+    }
+}
