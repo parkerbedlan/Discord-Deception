@@ -5,7 +5,6 @@ function Game(type, host, playerCount, guild, status='setup')
     if (!(new Set(['mafia']).has(type)))
     {
         throw("Oi bruv that game doesn't even exist yet.")
-        this.type = null
     }
     if (!(new Set(['setup','playing']).has(status)))
     {
@@ -18,11 +17,22 @@ function Game(type, host, playerCount, guild, status='setup')
     this.status = status
 }
 module.exports = {
-    minPlayers: {mafia: 5},
+    minPlayers: {mafia: 1},
 
     runningGames,
 
     Game,
+
+    signUpMessage(game)
+    {
+        return new Discord.MessageEmbed()
+            .setColor('#8c9eff')
+            .setTitle(`Raise your hand if you wanna play a game of ${game.type}!`)
+            .setThumbnail("https://i.imgur.com/IchybTu.png")
+            .addFields({
+                name: '**Roles:** ',
+                value:':smiling_imp: :smiling_imp: :angel: :angel: :angel: :angel: :cop: :man_health_worker:'})
+    },
 
     getChannel(guild, type, name = "", index = -1)
     {

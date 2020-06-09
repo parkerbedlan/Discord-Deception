@@ -14,7 +14,6 @@ secret role ratios according to vid:
 	[note: extensive rule explanation before each phase, requesting thumbs up from everybody before it starts and timer begins]
 	[note: log all win/loss data, including starting players/roles, who was left, and which team won]
 	[note: maybe have defaults, but some settings changes the host can control, like if the dead reveal their roles]
-	- make sure you have the necessary permissions, and say which ones you lack before starting.
 	- poll "Like this comment if you wanna play." and show the role ratio for the current number (bolded), one more, and one less
 	- reply to the host "type ?ready when everyone has joined."
 	- on ?ready, set all players to the 'Citizen #' Role, each assigned a number (or not?)

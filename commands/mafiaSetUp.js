@@ -1,4 +1,4 @@
-const {runningGames, Game} = require('../bot.js');
+const {runningGames, Game, signUpMessage} = require('../bot.js');
 
 //this is the mafia1 branch, I guess
 module.exports = async msg => {
@@ -12,13 +12,13 @@ module.exports = async msg => {
     }
     else
     {
-        const game = new Game('mafia', msg.author, 1, msg.guild)
-        runningGames[msg.guild] = game
+        runningGames[msg.guild] = new Game('mafia', msg.author, 1, msg.guild)
     }
+    const game = runningGames[msg.guild]
 
     // todo: make the message big, beautiful, and noticable with MessageEmbed (like w the help command)
     // todo: gather players for set-up using msg.createReactionCollecter
-    const signupMessage = await msg.channel.send('Raise your hand if you wanna play a game of mafia!')
+    const signupMessage = await msg.channel.send(signUpMessage(game))
     signupMessage.react('✋')
     msg.reply('You\'re the host. Use ?ready when everyone has joined. If you change your mind, use ?cancel')
 
