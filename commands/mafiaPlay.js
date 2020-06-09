@@ -2,7 +2,7 @@ const {runningGames} = require('../bot.js')
 
 module.exports = msg => {
     const game = runningGames[msg.guild]
-    runningGames[msg.guild].status = 'playing'
+    game.status = 'playing'
     msg.channel.send("Setting up a good ol game of mafia, a true classic banger...")
     // ... 
     msg.channel.send('wow this game is super intense, so many cool things are happening')

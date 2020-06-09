@@ -15,6 +15,7 @@ function Game(type, host, playerCount, guild, status='setup')
     this.playerCount = playerCount
     this.guild = guild
     this.status = status
+    this.players = new Set()
 }
 module.exports = {
     minPlayers: {mafia: 1},
@@ -25,14 +26,52 @@ module.exports = {
 
     signUpMessage(game)
     {
+        roleEmojis = {
+            mafia(playerCount)
+            {
+                // secret hitler roles as a placeholder
+                // example: :smiling_imp: :smiling_imp: :angel: :angel: :angel: :angel: :cop: :man_health_worker:
+                return [
+                    'ERROR: having 0 players is impossible',
+                    ':no_entry_sign:',
+                    ':no_entry_sign:',
+                    ':no_entry_sign:',
+                    ':no_entry_sign:',
+                    ':japanese_ogre: :guard: :angel: :angel: :angel:',
+                    ':japanese_ogre: :guard: :angel: :angel: :angel: :angel:',
+                    ':japanese_ogre: :guard: :guard: :angel: :angel: :angel: :angel:',
+                    ':japanese_ogre: :guard: :guard: :angel: :angel: :angel: :angel: :angel:',
+                    ':japanese_ogre: :guard: :guard: :guard: :angel: :angel: :angel: :angel: :angel:',
+                    ':japanese_ogre: :guard: :guard: :guard: :angel: :angel: :angel: :angel: :angel: :angel:'
+                ][playerCount]
+            },
+    
+            secretHitler(playerCount)
+            {
+                return [
+                    'ERROR: having 0 players is impossible',
+                    ':no_entry_sign:',
+                    ':no_entry_sign:',
+                    ':no_entry_sign:',
+                    ':no_entry_sign:',
+                    ':japanese_ogre: :guard: :angel: :angel: :angel:',
+                    ':japanese_ogre: :guard: :angel: :angel: :angel: :angel:',
+                    ':japanese_ogre: :guard: :guard: :angel: :angel: :angel: :angel:',
+                    ':japanese_ogre: :guard: :guard: :angel: :angel: :angel: :angel: :angel:',
+                    ':japanese_ogre: :guard: :guard: :guard: :angel: :angel: :angel: :angel: :angel:',
+                    ':japanese_ogre: :guard: :guard: :guard: :angel: :angel: :angel: :angel: :angel: :angel:'
+                ][playerCount]
+            }
+        }
         return new Discord.MessageEmbed()
             .setColor('#8c9eff')
             .setTitle(`Raise your hand if you wanna play a game of ${game.type}!`)
             .setThumbnail("https://i.imgur.com/IchybTu.png")
             .addFields({
-                name: '**Roles:** ',
-                value:':smiling_imp: :smiling_imp: :angel: :angel: :angel: :angel: :cop: :man_health_worker:'})
-    },
+                name: `**Amount of players: ${game.playerCount}**`,
+                value: roleEmojis.mafia(game.playerCount)
+            })
+    },    
 
     getChannel(guild, type, name = "", index = -1)
     {
@@ -104,7 +143,7 @@ client.on('message', async msg => {
     }
     else if(msg.content.toLowerCase().startsWith('?mafia'))
     {
-        mafiaSetUp(msg)
+        mafiaSetUp(client, msg)
     }
     else if(msg.content.toLowerCase().startsWith('?ready'))
     {
