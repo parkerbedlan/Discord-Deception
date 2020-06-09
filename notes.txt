@@ -1,3 +1,7 @@
+?mafia triggers mafiaSetUp, which collects a show of hands of who wants to play
+?ready (if used by the host) looks up which game is being played and runs that game's script
+
+
 all based on these rules https://youtu.be/vwJaNNV5KTE (look into JustKiddingParty's rules instead?)
 secret role ratios according to vid:
     mafia = 1/4 of total, up to 4
