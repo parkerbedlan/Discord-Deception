@@ -1,19 +1,24 @@
 //stuff to export
 let runningGames = new Object()  // {guild: Game} pairs
-function Game(type, host, playerCount, guild)
+function Game(type, host, playerCount, guild, status='setup')
 {
     if (!(new Set(['mafia']).has(type)))
     {
         throw("Oi bruv that game doesn't even exist yet.")
         this.type = null
     }
+    if (!(new Set(['setup','playing']).has(status)))
+    {
+        throw("Aye homes that status ain't a thing.")
+    }
     this.type = type
     this.host = host
     this.playerCount = playerCount
     this.guild = guild
+    this.status = status
 }
 module.exports = {
-    minPlayers: {mafia: 1},
+    minPlayers: {mafia: 5},
 
     runningGames,
 

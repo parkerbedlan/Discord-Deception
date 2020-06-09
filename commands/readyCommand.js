@@ -10,6 +10,10 @@ module.exports = msg => {
     {
         return msg.reply("You haven\'t started a game to be ready for yet! Use ?help to see what games you can choose from.")
     }
+    else if (game.status == 'playing')
+    {
+        return msg.reply("The game's already started, silly willy!")
+    }
     else if (msg.author != game.host)
     {
         return msg.channel.send("Only the host (<@!" + game.host + ">) can use ?ready to start the game.")

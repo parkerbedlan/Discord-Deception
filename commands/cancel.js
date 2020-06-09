@@ -7,6 +7,10 @@ module.exports = msg => {
     {
         return msg.reply("There's no started game to cancel! Use ?help to see what games you can choose from.")
     }
+    else if (game.status == 'playing')
+    {
+        return msg.reply("I'm sorry Dave, I'm afraid I can't do that. This mission is too important for me to allow you to jeopardize it.")
+    }
     else if (msg.author != game.host)
     {
         return msg.channel.send("Only the host (<@!" + game.host + ">) can ?cancel the game, you trickster you.")
