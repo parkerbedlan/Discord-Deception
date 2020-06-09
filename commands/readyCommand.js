@@ -1,10 +1,10 @@
 // called "readyCommand" to differentiate from the "ready" event
 
-const {getPlayingServers, minPlayers} = require('../bot.js');
+const {runningGames, minPlayers} = require('../bot.js');
 // const mafiaPlay = require('./mafiaPlay')
 
 module.exports = msg => {
-    const game = getPlayingServers()[msg.guild]
+    const game = runningGames[msg.guild]
     
     if (!game)
     {

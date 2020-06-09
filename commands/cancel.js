@@ -1,7 +1,7 @@
-const {getPlayingServers} = require('../bot.js');
+const {runningGames} = require('../bot.js');
 
 module.exports = msg => {
-    const game = getPlayingServers()[msg.guild]
+    const game = runningGames[msg.guild]
 
     if (!game)
     {
@@ -12,6 +12,6 @@ module.exports = msg => {
         return msg.channel.send("Only the host (<@!" + game.host + ">) can ?cancel the game, you trickster you.")
     }
 
-    delete getPlayingServers()[msg.guild]
+    delete runningGames[msg.guild]
     msg.reply('Your game has been #cancelled')
 }

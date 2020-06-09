@@ -1,14 +1,23 @@
-// todo: rename playingServers to runningGames, and create a Game object constructor
-let playingServers = new Object()  // guild: {host, playerCount}    
 //stuff to export
+let runningGames = new Object()  // {guild: Game} pairs
+function Game(type, host, playerCount, guild)
+{
+    if (!(new Set(['mafia']).has(type)))
+    {
+        throw("Oi bruv that game doesn't even exist yet.")
+        this.type = null
+    }
+    this.type = type
+    this.host = host
+    this.playerCount = playerCount
+    this.guild = guild
+}
 module.exports = {
     minPlayers: {mafia: 1},
 
-    getPlayingServers()
-    {
-        return playingServers
-        // return "hello world"
-    },
+    runningGames,
+
+    Game,
 
     getChannel(guild, type, name = "", index = -1)
     {

@@ -1,4 +1,4 @@
-const {getPlayingServers} = require('../bot.js');
+const {runningGames, Game} = require('../bot.js');
 
 //this is the mafia1 branch, I guess
 module.exports = async msg => {
@@ -6,13 +6,14 @@ module.exports = async msg => {
         // for now, just only allow one instance
         // (otherwise there are also problems with the ?ready command and which host said it)
         // also, if several instances were allowed, one user can't host several games
-    if (getPlayingServers()[msg.guild])
+    if (runningGames[msg.guild])
     {
         return msg.reply('Sorry, a discord deception game is already happening in this server. You\'ll have to wait for the current one to finish before starting a new one.')
     }
     else
     {
-        getPlayingServers()[msg.guild] = {type: 'mafia', host: msg.author, playerCount: 1}
+        const game = new Game('mafia', msg.author, 1, msg.guild)
+        runningGames[msg.guild] = game
     }
 
     // todo: make the message big, beautiful, and noticable with MessageEmbed (like w the help command)
