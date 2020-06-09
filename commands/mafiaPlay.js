@@ -3,10 +3,10 @@ const {runningGames} = require('../bot.js')
 module.exports = async msg => {
     const game = await runningGames[msg.guild]
     game.status = 'playing'
-    msg.channel(game.players.size)
-    for (const player in game.players)
+    console.log(game.players.size)
+    for (const player of game.players)
     {
-        msg.channel.send(player.username)
+        console.log(player.username)
     }
     // in game.players, remove client.user and add game.host
     msg.channel.send("Setting up a good ol game of mafia, a true classic banger...")

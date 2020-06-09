@@ -40,7 +40,6 @@ module.exports = async (client, msg) => {
         }
         else
         {
-            // todo: replace this in all cases with an updateMessage() function
             sUmsg.edit(undefined, signUpMessage(game))
         }
         
@@ -68,18 +67,16 @@ module.exports = async (client, msg) => {
     }
     function unreact(message, emojiStr, callback)
     {
-        //faster way?? find?
         for ([k,v] of message.reactions.cache)
         {
             if (k === emojiStr && v.me)
             {
+                // remove(v,client.user)
                 v.users.remove(client.user)
-                break
             }
         }
-        callback().catch('yes callback is a function')
+        callback()
     }
-
     const collector = sUmsg.createReactionCollector(filter, {dispose: true})
     collector.on('remove', (r,u) => remove(r,u));
     collector.on('collect', (r,u) => collect(r,u));
