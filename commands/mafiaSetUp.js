@@ -15,7 +15,7 @@ module.exports = async (client, msg) => {
     }
     else
     {
-        runningGames[msg.guild] = new Game('mafia', msg.author, 0, msg.guild)
+        runningGames[msg.guild] = new Game('mafia', msg.author, msg.guild)
     }
     const game = runningGames[msg.guild]
 
@@ -23,51 +23,56 @@ module.exports = async (client, msg) => {
     const sUmsg = await msg.channel.send(signUpMessage(game))
     msg.reply('You\'re the host. Use ?ready when everyone has joined. If you change your mind, use ?cancel')
     
-    // todo: the reaction collector is only triggered once then quits!!!
     // idea: add a timer? (.resetTimer https://discord.js.org/#/docs/main/stable/class/ReactionCollector?scrollTo=resetTimer)
     const filter = (reaction, user) => {
-        console.log('filter '+(reaction.emoji.name === '✋' && game.players.size != reaction.users.cache.array().length))
-        return reaction.emoji.name === '✋' && game.players.size != reaction.users.cache.array().length
+        console.log('filter')
+        return reaction.emoji.name === '✋'
     }
-    function collect(r,u)
+    async function collect(r,u)
     {
+        if(game.players.has(u)) return
+        await console.log(`${u.username} raised their hand`)
+        await game.players.add(u)
         // todo: if host, unreact
-        console.log(`${u.username} raised their hand`)
-        game.players.add(u)
-        game.playerCount += 1
-        sUmsg.edit(undefined, signUpMessage(game))
+        if (u.equals(game.host))
+        {
+            unreact(sUmsg, '✋')
+        }
+        await sUmsg.edit(undefined, signUpMessage(game))
         // sUmsg.createReactionCollector(filter, {max: maxPlayers, maxEmojis: 1, maxUsers: maxPlayers})
     }
-    function dispose(r,u)
+    async function remove(r,u)
     {
+        if(!game.players.has(u)) return
+        await console.log(`${u.username} lowered their hand`)
+        await game.players.delete(u)
         // todo: if host, react
-        console.log(`${u.username} lowered their hand`)
-        game.players.delete(u)
-        game.playerCount -= 1
-        sUmsg.edit(undefined, signUpMessage(game))
+        if (u.equals(game.host))
+        {
+            sUmsg.react('✋')
+        }
+        await sUmsg.edit(undefined, signUpMessage(game))
     }
-    function unreact(message, emojiStr)
+    async function unreact(message, emojiStr)
     {
         for ([k,v] of message.reactions.cache)
         {
             if (k === emojiStr && v.me)
             {
-                dispose(v,client.user)
-                v.users.remove(client.user)
+                // remove(v,client.user)
+                await v.users.remove(client.user)
             }
         }
     }
-    const collector = sUmsg.createReactionCollector(filter, {maxEmojis: 1})//, {max: maxPlayers, maxEmojis: 1, maxUsers: maxPlayers})
-    collector.on('collect', (r,u) => collect(r,u))
-    collector.on('dispose', (r,u) => dispose(r,u))
+    const collector = sUmsg.createReactionCollector(filter, {dispose: true})//, {max: maxPlayers, maxEmojis: 1, maxUsers: maxPlayers})
+    collector.on('remove', (r,u) => remove(r,u));
+    collector.on('collect', (r,u) => collect(r,u));
 
-    // await sUmsg.react('✋')
-    // await unreact(sUmsg, '✋')
-
-    
+    await sUmsg.react('✋')
+    console.log(game.host.username)
 
     // the bot's hand is a stand-in for the host (bc whether he likes it is optional), so unreact if they react and vice versa
-    // update the playerCount for each hand raise/lower event from all players who aren't the host
+    // update game.players for each hand raise/lower event from all players who aren't the host
     // lock the ability to react when the maximum amount of players has been hit
 
     // idea: for setup of custom rules, maybe DM the host instructions

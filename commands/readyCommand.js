@@ -18,7 +18,7 @@ module.exports = msg => {
     {
         return msg.channel.send("Only the host (<@!" + game.host + ">) can use ?ready to start the game.")
     }
-    else if (game.playerCount < minPlayers[game.type])
+    else if (game.players.size < minPlayers[game.type])
     {
         return msg.channel.send(`You need at least ${minPlayers[game.type]} players to start a game of ${game.type}.`)
     }

@@ -1,6 +1,6 @@
 //stuff to export
 let runningGames = new Object()  // {guild: Game} pairs
-function Game(type, host, playerCount, guild, status='setup')
+function Game(type, host, guild, status='setup')
 {
     if (!(new Set(['mafia']).has(type)))
     {
@@ -12,13 +12,12 @@ function Game(type, host, playerCount, guild, status='setup')
     }
     this.type = type
     this.host = host
-    this.playerCount = playerCount
     this.guild = guild
     this.status = status
     this.players = new Set()
 }
 module.exports = {
-    minPlayers: {mafia: 1},
+    minPlayers: {mafia: 2},
 
     runningGames,
 
@@ -32,11 +31,11 @@ module.exports = {
                 // secret hitler roles as a placeholder
                 // example: :smiling_imp: :smiling_imp: :angel: :angel: :angel: :angel: :cop: :man_health_worker:
                 return [
-                    'ERROR: having 0 players is impossible',
-                    ':no_entry_sign:',
-                    ':no_entry_sign:',
-                    ':no_entry_sign:',
-                    ':no_entry_sign:',
+                    'What is a game if there is nobody to play it?',
+                    'We need more players to start the game.',
+                    'We need more players to start the game.',
+                    'We need more players to start the game.',
+                    'We need more players to start the game.',
                     ':japanese_ogre: :guard: :angel: :angel: :angel:',
                     ':japanese_ogre: :guard: :angel: :angel: :angel: :angel:',
                     ':japanese_ogre: :guard: :guard: :angel: :angel: :angel: :angel:',
@@ -49,11 +48,11 @@ module.exports = {
             secretHitler(playerCount)
             {
                 return [
-                    'ERROR: having 0 players is impossible',
-                    ':no_entry_sign:',
-                    ':no_entry_sign:',
-                    ':no_entry_sign:',
-                    ':no_entry_sign:',
+                    'What is a game if there is nobody to play it?',
+                    'We need more players to start the game.',
+                    'We need more players to start the game.',
+                    'We need more players to start the game.',
+                    'We need more players to start the game.',
                     ':japanese_ogre: :guard: :angel: :angel: :angel:',
                     ':japanese_ogre: :guard: :angel: :angel: :angel: :angel:',
                     ':japanese_ogre: :guard: :guard: :angel: :angel: :angel: :angel:',
@@ -68,8 +67,8 @@ module.exports = {
             .setTitle(`Raise your hand if you wanna play a game of ${game.type}!`)
             .setThumbnail("https://i.imgur.com/IchybTu.png")
             .addFields({
-                name: `**Amount of players: ${game.playerCount}**`,
-                value: roleEmojis.mafia(game.playerCount)
+                name: `**Amount of players: ${game.players.size}**`,
+                value: roleEmojis.mafia(game.players.size)
             })
     },    
 
