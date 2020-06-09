@@ -19,6 +19,8 @@ function Game(type, host, guild, status='setup')
 module.exports = {
     minPlayers: {mafia: 2},
 
+    maxPlayers: {mafia: 2},
+
     runningGames,
 
     Game,

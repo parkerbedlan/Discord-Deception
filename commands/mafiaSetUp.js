@@ -1,7 +1,7 @@
 // todo: this setup program can probably be generalized like readyCommand.js was
 
-const {runningGames, Game, signUpMessage} = require('../bot.js');
-const maxPlayers = 30
+const {runningGames, Game, signUpMessage, maxPlayers} = require('../bot.js');
+const readyCommand = require('./readyCommand')
 
 //this is the mafia1 branch, I guess
 module.exports = async (client, msg) => {
@@ -19,7 +19,7 @@ module.exports = async (client, msg) => {
     }
     const game = runningGames[msg.guild]
 
-    // todo: gather players for set-up using msg.createReactionCollector
+    // gather players
     const sUmsg = await msg.channel.send(signUpMessage(game))
     msg.reply('You\'re the host. Use ?ready when everyone has joined. If you change your mind, use ?cancel')
     
@@ -31,48 +31,65 @@ module.exports = async (client, msg) => {
     async function collect(r,u)
     {
         if(game.players.has(u)) return
-        await console.log(`${u.username} raised their hand`)
+        // await console.log(`${u.username} raised their hand`)
         await game.players.add(u)
-        // todo: if host, unreact
+        // if host, unreact
         if (u.equals(game.host))
         {
-            unreact(sUmsg, '✋')
+            await unreact(sUmsg, '✋', sUmsg.edit(undefined, signUpMessage(game)))
         }
-        await sUmsg.edit(undefined, signUpMessage(game))
-        // sUmsg.createReactionCollector(filter, {max: maxPlayers, maxEmojis: 1, maxUsers: maxPlayers})
+        else
+        {
+            // todo: replace this in all cases with an updateMessage() function
+            sUmsg.edit(undefined, signUpMessage(game))
+        }
+        
+        if (await game.players.size == maxPlayers.mafia)
+        {
+            collector.stop('max players reached')
+        }
     }
     async function remove(r,u)
     {
         if(!game.players.has(u)) return
-        await console.log(`${u.username} lowered their hand`)
+        // await console.log(`${u.username} lowered their hand`)
         await game.players.delete(u)
-        // todo: if host, react
+        // if host, react
         if (u.equals(game.host))
         {
-            sUmsg.react('✋')
+            await sUmsg.react('✋')
         }
-        await sUmsg.edit(undefined, signUpMessage(game))
+        
+        // while (!game.players.has(game.host) && !game.players.has(client.user))
+        // {
+        //     await game.players
+        // }
+        sUmsg.edit(undefined, signUpMessage(game))
     }
-    async function unreact(message, emojiStr)
+    function unreact(message, emojiStr, callback)
     {
+        //faster way?? find?
         for ([k,v] of message.reactions.cache)
         {
             if (k === emojiStr && v.me)
             {
-                // remove(v,client.user)
-                await v.users.remove(client.user)
+                v.users.remove(client.user)
+                break
             }
         }
+        callback().catch('yes callback is a function')
     }
-    const collector = sUmsg.createReactionCollector(filter, {dispose: true})//, {max: maxPlayers, maxEmojis: 1, maxUsers: maxPlayers})
+
+    const collector = sUmsg.createReactionCollector(filter, {dispose: true})
     collector.on('remove', (r,u) => remove(r,u));
     collector.on('collect', (r,u) => collect(r,u));
+    collector.on('end', async (...args) => {
+        await game.players
+        readyCommand(msg)
+    })
 
     await sUmsg.react('✋')
-    console.log(game.host.username)
 
-    // the bot's hand is a stand-in for the host (bc whether he likes it is optional), so unreact if they react and vice versa
-    // update game.players for each hand raise/lower event from all players who aren't the host
     // lock the ability to react when the maximum amount of players has been hit
 
     // idea: for setup of custom rules, maybe DM the host instructions
