@@ -9,7 +9,7 @@ module.exports = msg => {
     }
     else if (game.status == 'playing')
     {
-        return msg.reply("I'm sorry Dave, I'm afraid I can't do that. This mission is too important for me to allow you to jeopardize it.")
+        return msg.reply("I'm sorry Dave, I'm afraid I can't do that. This game is too important for me to allow you to jeopardize it.")
     }
     else if (msg.author != game.host)
     {
