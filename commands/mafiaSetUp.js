@@ -31,41 +31,19 @@ module.exports = async (client, msg) => {
     async function collect(r,u)
     {
         if(game.players.has(u)) return
-        // await console.log(`${u.username} raised their hand`)
+
         await game.players.add(u)
-        // if host, unreact
+
         if (u.equals(game.host))
-        {
-            await unreact(sUmsg, '✋', sUmsg.edit(undefined, signUpMessage(game)))
-        }
-        else
-        {
-            sUmsg.edit(undefined, signUpMessage(game))
-        }
+            await unreact(sUmsg, '✋');
+        await sUmsg.edit(undefined, signUpMessage(game))
         
-        if (await game.players.size == maxPlayers.mafia)
+        if (game.players.size == maxPlayers.mafia)
         {
             collector.stop('max players reached')
         }
     }
-    async function remove(r,u)
-    {
-        if(!game.players.has(u)) return
-        // await console.log(`${u.username} lowered their hand`)
-        await game.players.delete(u)
-        // if host, react
-        if (u.equals(game.host))
-        {
-            await sUmsg.react('✋')
-        }
-        
-        // while (!game.players.has(game.host) && !game.players.has(client.user))
-        // {
-        //     await game.players
-        // }
-        sUmsg.edit(undefined, signUpMessage(game))
-    }
-    async function unreact(message, emojiStr, callback)
+    async function unreact(message, emojiStr)
     {
         for ([k,v] of message.reactions.cache)
         {
@@ -75,7 +53,19 @@ module.exports = async (client, msg) => {
                 break
             }
         }
-        callback()
+    }
+    async function remove(r,u)
+    {
+        if(!game.players.has(u)) return
+
+        await game.players.delete(u)
+
+        if (u.equals(game.host))
+        {
+            await sUmsg.react('✋')
+        }
+        
+        await sUmsg.edit(undefined, signUpMessage(game))
     }
     const collector = sUmsg.createReactionCollector(filter, {dispose: true})
     collector.on('remove', (r,u) => remove(r,u));
