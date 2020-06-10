@@ -65,14 +65,14 @@ module.exports = async (client, msg) => {
         // }
         sUmsg.edit(undefined, signUpMessage(game))
     }
-    function unreact(message, emojiStr, callback)
+    async function unreact(message, emojiStr, callback)
     {
         for ([k,v] of message.reactions.cache)
         {
             if (k === emojiStr && v.me)
             {
-                // remove(v,client.user)
-                v.users.remove(client.user)
+                await v.users.remove(client.user)
+                break
             }
         }
         callback()
