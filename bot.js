@@ -17,7 +17,7 @@ function Game(type, host, guild, status='setup')
     this.players = new Set()
 }
 module.exports = {
-    minPlayers: {mafia: 2},
+    minPlayers: {mafia: 1},
 
     maxPlayers: {mafia: 2},
 
@@ -27,10 +27,10 @@ module.exports = {
 
     signUpMessage(game)
     {
-        roleEmojis = {
+        jobEmojis = {
             mafia(playerCount)
             {
-                // secret hitler roles as a placeholder
+                // secret hitler jobs as a placeholder
                 // example: :smiling_imp: :smiling_imp: :angel: :angel: :angel: :angel: :cop: :man_health_worker:
                 return [
                     'What is a game if there is nobody to play it?',
@@ -70,7 +70,7 @@ module.exports = {
             .setThumbnail("https://i.imgur.com/IchybTu.png")
             .addFields({
                 name: `**Amount of players: ${game.players.size}**`,
-                value: roleEmojis.mafia(game.players.size)
+                value: jobEmojis.mafia(game.players.size)
             })
     },    
 
@@ -87,6 +87,25 @@ module.exports = {
         if (!general)
             return null
         return general
+    },
+
+    // todo: return shuffled array but don't shuffle original
+    shuffleArray(arr)
+    {
+        let newarr = arr.slice()
+        let m = newarr.length
+        let t, i
+        // while there remain elements to shuffle
+        while (m)
+        {
+            // pick a remaining element
+            i = Math.floor(Math.random() * m--)
+            // swap it with the current element
+            t = newarr[m]
+            newarr[m] = newarr[i]
+            newarr[i] = t
+        }
+        return newarr
     }
 }
 

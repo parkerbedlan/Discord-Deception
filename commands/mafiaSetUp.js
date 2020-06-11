@@ -1,4 +1,7 @@
+// todo: don't allow if started in a DM channel
 // todo: this setup program can probably be generalized like readyCommand.js was
+// todo: implement autostart argument
+// idea: rename lobby?
 
 const {runningGames, Game, signUpMessage, maxPlayers} = require('../bot.js');
 const readyCommand = require('./readyCommand')
@@ -25,7 +28,6 @@ module.exports = async (client, msg) => {
     
     // idea: add a timer? (.resetTimer https://discord.js.org/#/docs/main/stable/class/ReactionCollector?scrollTo=resetTimer)
     const filter = (reaction, user) => {
-        console.log('filter')
         return reaction.emoji.name === '✋'
     }
     async function collect(r,u)
