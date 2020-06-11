@@ -3,7 +3,7 @@
 const {runningGames, minPlayers} = require('../bot.js');
 // const mafiaPlay = require('./mafiaPlay')
 
-module.exports = msg => {
+module.exports = (msg, lobbyMsg) => {
     const game = runningGames[msg.guild]
     
     if (!game)
@@ -23,6 +23,8 @@ module.exports = msg => {
         return msg.channel.send(`You need at least ${minPlayers[game.type]} players to start a game of ${game.type}.`)
     }
 
+    // todo: delete lobby message
+    // lobbyMsg.delete()
     require(`./${game.type}Play`)(msg)
 
 }

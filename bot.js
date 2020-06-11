@@ -34,8 +34,8 @@ module.exports = {
                 // example: :smiling_imp: :smiling_imp: :angel: :angel: :angel: :angel: :cop: :man_health_worker:
                 return [
                     'What is a game if there is nobody to play it?',
-                    'We need more players to start the game.',
-                    'We need more players to start the game.',
+                    ':smiling_imp:',
+                    ':smiling_imp: :angel:',
                     'We need more players to start the game.',
                     'We need more players to start the game.',
                     ':japanese_ogre: :guard: :angel: :angel: :angel:',

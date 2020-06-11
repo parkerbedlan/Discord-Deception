@@ -24,6 +24,7 @@ module.exports = async (client, msg) => {
 
     // gather players
     const sUmsg = await msg.channel.send(signUpMessage(game))
+    console.log(sUmsg)
     msg.reply('You\'re the host. Use ?ready when everyone has joined. If you change your mind, use ?cancel')
     
     // idea: add a timer? (.resetTimer https://discord.js.org/#/docs/main/stable/class/ReactionCollector?scrollTo=resetTimer)
@@ -74,7 +75,7 @@ module.exports = async (client, msg) => {
     collector.on('collect', (r,u) => collect(r,u));
     collector.on('end', async (...args) => {
         await game.players
-        readyCommand(msg)
+        readyCommand(msg, sUmsg)
     })
 
     await sUmsg.react('✋')
