@@ -1,5 +1,5 @@
+// todo: make emojis based on a function (convert kevin's job generator into a bot.js function that can work with it)
 // todo: make a new version of the lobby message that basically copies UnoBot
-// todo: don't allow if started in a DM channel
 // todo: this setup program can probably be generalized like readyCommand.js was
 // todo: implement autostart argument
 // idea: rename lobby?

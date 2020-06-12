@@ -6,8 +6,7 @@ const {Permissions, MessageEmbed} = require('discord.js')
 const shortToFull = {
     m: 'mafia',
     i: 'innocent',
-    c: 'cop',
-    d: 'doctor'
+    c: 'cop'
 }
 
 module.exports = async msg => {
@@ -137,5 +136,4 @@ function startNight(game)
         // show a bottom of chat timer - if they can't come to a consensus in the given time, they don't get to kill anyone
         // delete evil-lair when done
     // todo: same with cops (?investigate @player) in police-station (once that role is added)
-    // todo: same with doctor (?protect @player) in hospital (once that role is added)
 }
