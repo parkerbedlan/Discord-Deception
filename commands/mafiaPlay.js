@@ -113,6 +113,7 @@ module.exports = async msg => {
             collector.stop()
     })
     collector.on('end', collected => {
+        // todo: first night different function (no mafia kill)
         startNight(game)
     })
 }

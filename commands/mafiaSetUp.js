@@ -1,3 +1,4 @@
+// todo: make a new version of the lobby message that basically copies UnoBot
 // todo: don't allow if started in a DM channel
 // todo: this setup program can probably be generalized like readyCommand.js was
 // todo: implement autostart argument

@@ -13,6 +13,8 @@ tie votes:
 	the rules above handle it by requiring the game to have an odd number of players
 		every daytime vote is then with an odd number of players
 	idea: if even number of players, mafia gets to kill someone at night. if odd, they don't.
+	better idea: cast a revote with the top 2, and if that needs a (second) revote and there's still a tie, then nobody gets to die that day
+	BEST idea: the first vote is a nomination vote, and the top 3 are nominated and each speak for 30 seconds. If it's a tie, revote against for the final 2 (unless it's a 3 way tie, then it's a redo). If that's still a tie, nobody dies.
 
 
 MODIFICATION: create evil-lair everytime it's time at nighttime, and delete it when it isn't time
