@@ -18,7 +18,7 @@ module.exports = msg => {
         })
         .catch(console.error)
     
-    const playersRole = msg.guild.roles.cache.find(r => r.name == 'Players')
+    const playersRole = msg.guild.roles.cache.find(r => r.name == 'Players' && r.color == '#8c9eff')
     if (playersRole)
     {
         playersRole.edit({color: 'DEFAULT'})
@@ -27,8 +27,6 @@ module.exports = msg => {
     const categoryChannel = msg.guild.channels.cache.find(ch => ch.name == 'Mafia Game')
     msg.guild.channels.cache.filter(ch => ch.parent == categoryChannel).forEach(ch => ch.delete())
     categoryChannel.delete()
-
-    
 
     console.log('The past never happened.')
 }
