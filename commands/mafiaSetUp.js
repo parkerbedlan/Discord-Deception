@@ -3,11 +3,16 @@
 // todo: implement autostart argument
 // idea: rename lobby?
 
-const {runningGames, Game, signUpMessage, maxPlayers} = require('../bot.js');
-const readyCommand = require('./readyCommand')
+const {runningGames, Game, signUpMessage, maxPlayers, unreact} = require('../bot.js');
+const readyCommand = require('./readyCommand');
+const cancel = require('./cancel.js');
 
 //this is the mafia1 branch, I guess
 module.exports = async (client, msg) => {
+    if (!msg.guild)
+    {
+        return msg.reply("While a single player deception game would be really easy, it's best played in a server where there are, yunno, people you can play with.")
+    }
     // prevent several game instances until setup is complete (but even then, 1 player can't be in several games)
         // for now, just only allow one instance
         // (otherwise there are also problems with the ?ready command and which host said it)
@@ -24,15 +29,13 @@ module.exports = async (client, msg) => {
 
     // gather players
     const sUmsg = await msg.channel.send(signUpMessage(game))
-    console.log(sUmsg)
+    game.lobbyMsg = sUmsg
     msg.reply('You\'re the host. Use ?ready when everyone has joined. If you change your mind, use ?cancel')
     
     // idea: add a timer? (.resetTimer https://discord.js.org/#/docs/main/stable/class/ReactionCollector?scrollTo=resetTimer)
-    const filter = (reaction, user) => {
-        return reaction.emoji.name === '✋'
-    }
-    async function collect(r,u)
-    {
+    const filter = (reaction) => {return reaction.emoji.name === '✋'}
+    const collector = sUmsg.createReactionCollector(filter, {dispose: true})
+    collector.on('collect', async (r,u) => {
         if(game.players.has(u)) return
 
         await game.players.add(u)
@@ -44,21 +47,14 @@ module.exports = async (client, msg) => {
         if (game.players.size == maxPlayers.mafia)
         {
             collector.stop('max players reached')
+                .then(readyCommand(msg))
+                .catch(() => {
+                    msg.reply('Quit spamming the like button, bub.')
+                    cancel(msg)
+                })
         }
-    }
-    async function unreact(message, emojiStr)
-    {
-        for ([k,v] of message.reactions.cache)
-        {
-            if (k === emojiStr && v.me)
-            {
-                await v.users.remove(client.user)
-                break
-            }
-        }
-    }
-    async function remove(r,u)
-    {
+    });
+    collector.on('remove', async (r,u) => {
         if(!game.players.has(u)) return
 
         await game.players.delete(u)
@@ -69,14 +65,7 @@ module.exports = async (client, msg) => {
         }
         
         await sUmsg.edit(undefined, signUpMessage(game))
-    }
-    const collector = sUmsg.createReactionCollector(filter, {dispose: true})
-    collector.on('remove', (r,u) => remove(r,u));
-    collector.on('collect', (r,u) => collect(r,u));
-    collector.on('end', async (...args) => {
-        await game.players
-        readyCommand(msg, sUmsg)
-    })
+    });
 
     await sUmsg.react('✋')
 

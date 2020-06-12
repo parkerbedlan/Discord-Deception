@@ -1,12 +1,12 @@
 //stuff to export
 let runningGames = new Object()  // {guild: Game} pairs
-function Game(type, host, guild, status='setup')
+function Game(type, host, guild, status='lobby')
 {
     if (!(new Set(['mafia']).has(type)))
     {
         throw("Oi bruv that game doesn't even exist yet.")
     }
-    if (!(new Set(['setup','playing']).has(status)))
+    if (!(new Set(['lobby','playing']).has(status)))
     {
         throw("Aye homes that status ain't a thing.")
     }
@@ -15,6 +15,8 @@ function Game(type, host, guild, status='setup')
     this.guild = guild
     this.status = status
     this.players = new Set()
+    this.lobbyMsg = null
+    this.playersRole = null
 }
 module.exports = {
     minPlayers: {mafia: 1},
@@ -89,7 +91,6 @@ module.exports = {
         return general
     },
 
-    // todo: return shuffled array but don't shuffle original
     shuffleArray(arr)
     {
         let newarr = arr.slice()
@@ -106,6 +107,17 @@ module.exports = {
             newarr[i] = t
         }
         return newarr
+    },
+
+    unreact: async (message, emojiStr) => {
+        for ([k,v] of message.reactions.cache)
+        {
+            if (k === emojiStr && v.me)
+            {
+                await v.users.remove(client.user)
+                break
+            }
+        }
     }
 }
 
@@ -118,6 +130,7 @@ const client = new Discord.Client()
 const mafiaSetUp = require('./commands/mafiaSetUp')
 const readyCommand = require('./commands/readyCommand') // called "readyCommand" to differentiate from the "ready" event
 const cancel = require('./commands/cancel')
+const end = require("./commands/endGame")
 
 // what ?help shows
 const commandList = new Discord.MessageEmbed()
@@ -152,7 +165,7 @@ client.on('message', async msg => {
     if (!msg.content.startsWith('?')) return
 
     // todo: check that you have admin permissions first and return error if you don't
-    
+
     if (msg.content == '?ping')
     {
         msg.reply('Pong!')
@@ -172,6 +185,17 @@ client.on('message', async msg => {
     else if(msg.content.toLowerCase().startsWith('?cancel'))
     {
         cancel(msg)
+    }
+    else if(msg.content.toLowerCase() == '??end')   //only for debugging
+    {
+        if (!runningGames[msg.guild] || runningGames[msg.guild].status != 'playing')
+        {
+            msg.reply("That command can only be used during a running game.")
+        }
+        else
+        {
+            end(msg)
+        }
     }
     else if(msg.content.substring(1,2) != " ")
     {

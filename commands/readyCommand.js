@@ -3,7 +3,7 @@
 const {runningGames, minPlayers} = require('../bot.js');
 // const mafiaPlay = require('./mafiaPlay')
 
-module.exports = (msg, lobbyMsg) => {
+module.exports = msg => {
     const game = runningGames[msg.guild]
     
     if (!game)
@@ -22,9 +22,11 @@ module.exports = (msg, lobbyMsg) => {
     {
         return msg.channel.send(`You need at least ${minPlayers[game.type]} players to start a game of ${game.type}.`)
     }
-
-    // todo: delete lobby message
-    // lobbyMsg.delete()
-    require(`./${game.type}Play`)(msg)
-
+    else
+    {
+        // todo: fix the fact that deleting this triggers an end, which then triggers a second readyCommand()
+        game.lobbyMsg.delete()
+        game.lobbyMsg = null
+        require(`./${game.type}Play`)(msg)
+    }
 }

@@ -1,4 +1,5 @@
 const {runningGames, shuffleArray} = require('../bot.js')
+const {Permissions} = require('discord.js')
 
 const jobRatios = {
     1: ['m'],
@@ -12,21 +13,24 @@ const shortToFull = {
 }
 
 module.exports = async msg => {
-    const game = runningGames[msg.guild]
+    msg.channel.send("Let's play some Mafia! Sending out your secret roles...")
+
+    const game = await runningGames[msg.guild]
+    if (game.status == 'playing')
+        return
     game.status = 'playing'
     game.players.delete(msg.client.user)
     game.players.add(game.host)
-    console.log(`${game.players.size} player${game.players.size > 1 ? 's' : ''}`)
+    console.log(`Starting ${game.type} game with ${game.players.size} player${game.players.size > 1 ? 's' : ''}`)
 
-    const playersRole = await game.guild.roles.create({
+    game.playersRole = await game.guild.roles.create({
         data: {
             name: 'Players',
             hoist: true,
             position: 1,
             mentionable: true,
             color: '#8c9eff'
-        },
-        reason: `For a game of ${game.type}`
+        }
     })
 
     let jobSets = {
@@ -40,36 +44,28 @@ module.exports = async msg => {
     game.players.forEach(async player => {
         // give public 'Players' role
         const member = await game.guild.member(player)
-        member.roles.add(playersRole)
+        member.roles.add(game.playersRole)
         // pull their secret job from a hat
         const job = shortToFull[jobHat.pop()]
         console.log(`${player.username}: ${job}`)
         userToJob.set(player, job)
         jobSets[job].add(player)
-        console.log(`DMing ${player.username}...`)
-        player.send(`Your secret role is: ${job}! Don't tell anyone...2`)
-        console.log(`just DMed ${player.username}`)
+        // console.log(`DMing ${player.username}...`)
+        player.send(`Your secret role is: **${job}**. Shhh, don't tell anyone...`)
+        // console.log(`just DMed ${player.username}`)
     })
 
-    // waits 5 seconds before cleaning up to simulate the game happening
-    setTimeout(() => {
-        const winningTeam = 'everybody'
-        msg.channel.send(`quality game, ${game.guild.name}. ${winningTeam} wins!`)
-
-        // clean up
-        // todo: actually delete DMs
-        game.players.forEach(async player => {
-            console.log(`deleting DMs of ${player.username}...`)
-            player.dmChannel.messages.fetch()
-                .then(messages => {
-                    // todo: fix this so an error isn't thrown everytime
-                    messages.forEach(message => message.delete().catch(console.error))
-                })
-                .catch(console.error)
-        })
-        playersRole.edit({color: 'DEFAULT'})
-        playersRole.delete('The game finished.')
-        delete runningGames[msg.guild]
-    }, 5000)
+    game.categoryChannel = await game.guild.channels.create('Mafia Game', {
+        type: 'category',
+        position: 1,
+        permissionOverwrites: [
+            {
+                id: game.playersRole,
+                type: 'role',
+                allow: new Permissions(3607616),
+                deny: new Permissions(2143876031)
+            }
+        ]
+    })
 
 }

@@ -18,7 +18,7 @@ secret role ratios according to vid:
 	[note: maybe have defaults, but some settings changes the host can control, like if the dead reveal their roles]
 	`- poll "Like this comment if you wanna play." and show the role ratio for the current number (bolded), one more, and one less
 	`- reply to the host "type ?ready when everyone has joined."
-	- on ?ready, set all players to the 'Citizen #' Role, each assigned a number (or not?)
+	`- on ?ready, set all players to the 'Citizen #' Role, each assigned a number (or not?)
 	- create "Mafia Game" CategoryChannel
 		only the 'Citizen' Role can be in it, using PermissionOverwrites
 	- create "Town Hall" voice channel
