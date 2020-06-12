@@ -1,5 +1,10 @@
 NOTE: calling secret game roles "jobs" to make a distinction between discord roles and in-game secret game JOBS 
 
+MODIFICATION: create evil-lair everytime it's time at nighttime, and delete it when it isn't time
+	this way, we don't have to worry about modifying privileges
+	tell mafia to go to evil-lair when it's their time
+	(same with police-station)
+
 ?mafia triggers mafiaSetUp, which collects a show of hands of who wants to play
 ?ready (if used by the host) looks up which game is being played and runs that game's script
 
@@ -19,11 +24,11 @@ secret role ratios according to vid:
 	`- poll "Like this comment if you wanna play." and show the role ratio for the current number (bolded), one more, and one less
 	`- reply to the host "type ?ready when everyone has joined."
 	`- on ?ready, set all players to the 'Citizen #' Role, each assigned a number (or not?)
-	- create "Mafia Game" CategoryChannel
+	`- create "Mafia Game" CategoryChannel
 		only the 'Citizen' Role can be in it, using PermissionOverwrites
-	- create "Town Hall" voice channel
-		userLimit = number of players
-	- create "public record" text channel
+	`- create "Town Hall" voice channel
+		`userLimit = number of players
+	`- create "public record" text channel
 	- create "evil lair" text channel
 		only mafia are allowed to talk in here, *** and ONLY during killing phase at night (change permissions each nighttime)
 	- create "police station" text channel

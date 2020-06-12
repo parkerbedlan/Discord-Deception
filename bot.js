@@ -188,14 +188,7 @@ client.on('message', async msg => {
     }
     else if(msg.content.toLowerCase() == '??end')   //only for debugging
     {
-        if (!runningGames[msg.guild] || runningGames[msg.guild].status != 'playing')
-        {
-            msg.reply("That command can only be used during a running game.")
-        }
-        else
-        {
-            end(msg)
-        }
+        end(msg)
     }
     else if(msg.content.substring(1,2) != " ")
     {
