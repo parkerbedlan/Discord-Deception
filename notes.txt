@@ -1,5 +1,20 @@
 NOTE: calling secret game roles "jobs" to make a distinction between discord roles and in-game secret game JOBS 
 
+
+best rules imo: http://org.ntnu.no/mafia/Game/game.shtml		http://org.ntnu.no/mafia/Rules/rules.shtml
+	dead don't talk (duh)
+	first night mafia get to know each other but don't kill, but cop still gets to investigate
+	game ends when all normal innocents die or all mafia die
+	voting is public and simultaneous
+		maybe DM them and then the bot displays all the votes after
+	daytime deaths reveal identity, night deaths do not
+
+tie votes:
+	the rules above handle it by requiring the game to have an odd number of players
+		every daytime vote is then with an odd number of players
+	idea: if even number of players, mafia gets to kill someone at night. if odd, they don't.
+
+
 MODIFICATION: create evil-lair everytime it's time at nighttime, and delete it when it isn't time
 	this way, we don't have to worry about modifying privileges
 	tell mafia to go to evil-lair when it's their time
@@ -8,13 +23,6 @@ MODIFICATION: create evil-lair everytime it's time at nighttime, and delete it w
 ?mafia triggers mafiaSetUp, which collects a show of hands of who wants to play
 ?ready (if used by the host) looks up which game is being played and runs that game's script
 
-
-all based on these rules https://youtu.be/vwJaNNV5KTE (look into JustKiddingParty's rules instead?)
-secret role ratios according to vid:
-    mafia = 1/4 of total, up to 4
-	police = mafia - 1
-	1 doctor
-	the rest are townspeople/innocent
 
 
 ?mafia command plan:

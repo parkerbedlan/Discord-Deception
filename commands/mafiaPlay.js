@@ -1,15 +1,13 @@
+// todo: on the first night, mafia only get to learn each others' identities; they don't get to kill
+
 const {runningGames, shuffleArray} = require('../bot.js')
 const {Permissions, MessageEmbed} = require('discord.js')
 
-const jobRatios = {
-    1: ['m'],
-    2: ['m','i']
-}
 const shortToFull = {
     m: 'mafia',
     i: 'innocent',
-    c: 'cop'
-    // d: 'doctor
+    c: 'cop',
+    d: 'doctor'
 }
 
 module.exports = async msg => {
@@ -40,7 +38,19 @@ module.exports = async msg => {
     }
     game.userToJob = new Map()
     game.dead = new Set()
-    let jobHat = shuffleArray(jobRatios[game.players.size])
+
+    let jobHat = []
+    if (game.players.size > 6)
+        for (i = 0; i < Math.ceil(game.players.size * .051); i++)
+            jobHat.push('c')
+    for (j = 0; j < Math.ceil(game.players.size * .226); j++)
+        jobHat.push('m')
+    if (game.players.size > 8)
+        jobHat.push('d')
+    while (jobHat.length < game.players.size)
+        jobHat.push('i')
+
+    jobHat = shuffleArray(jobHat)
     console.log(jobHat)
     game.players.forEach(async player => {
         // give public 'Players' role

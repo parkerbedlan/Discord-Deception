@@ -1,3 +1,5 @@
+// todo: create a Player object with traits like dead and job and user
+
 //stuff to export
 let runningGames = new Object()  // {guild: Game} pairs
 function Game(type, host, guild, status='lobby')
