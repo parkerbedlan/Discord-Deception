@@ -131,6 +131,7 @@ const mafiaSetUp = require('./commands/mafiaSetUp')
 const readyCommand = require('./commands/readyCommand') // called "readyCommand" to differentiate from the "ready" event
 const cancel = require('./commands/cancel')
 const end = require("./commands/endGame")
+const clearPast = require("./commands/clearPast")
 
 // what ?help shows
 const commandList = new Discord.MessageEmbed()
@@ -189,6 +190,10 @@ client.on('message', async msg => {
     else if(msg.content.toLowerCase() == '??end')   //only for debugging
     {
         end(msg)
+    }
+    else if(msg.content.toLowerCase() == '??clear') //only for debugging
+    {
+        clearPast(msg)
     }
     else if(msg.content.substring(1,2) != " ")
     {
