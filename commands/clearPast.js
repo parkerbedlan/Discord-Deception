@@ -20,15 +20,22 @@ module.exports = msg => {
         })
         .catch(console.error)
     
-    const playersRole = msg.guild.roles.cache.find(r => r.name == 'Players' && r.color == '#8c9eff')
+    const playersRole = msg.guild.roles.cache.find(r => r.name == 'Players' && r.color == 9215743)
     if (playersRole)
     {
         playersRole.edit({color: 'DEFAULT'})
         playersRole.delete()
     }
+    else
+    {
+        console.log(msg.guild.roles.cache)
+    }
     const categoryChannel = msg.guild.channels.cache.find(ch => ch.name == 'Mafia Game')
-    msg.guild.channels.cache.filter(ch => ch.parent == categoryChannel).forEach(ch => ch.delete())
-    categoryChannel.delete()
+    if (categoryChannel)
+    {
+        msg.guild.channels.cache.filter(ch => ch.parent == categoryChannel).forEach(ch => ch.delete())
+        categoryChannel.delete()
+    }
 
     console.log('The past never happened.')
 }

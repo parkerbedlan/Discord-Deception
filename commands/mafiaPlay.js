@@ -122,14 +122,19 @@ function startNight(game)
     console.log('spooky')
     game.generalTextChannel.send('The Night has fallen, and the Townspeople go to sleep...')
     // todo: change Players role permissions (deny everything except CONNECT)
-    game.categoryChannel.overwritePermissions([
-        {
-            id: game.playersRole,
-            type: 'role',
-            allow: new Permissions(1115136),
-            deny: new Permissions(2146368511)
-        }
-    ])
+    // game.categoryChannel.overwritePermissions([
+    //     {
+    //         id: game.playersRole,
+    //         type: 'role',
+    //         allow: new Permissions(1115136),
+    //         deny: new Permissions(2146368511)
+    //     }
+    // ])
+    game.muted = true
+    // idk what this does yet but I want it to mute everyone
+
+
+
     // todo: make evil-lair text channel for mafia, tell them to use ?kill @player
         // make sure the @ is in game.players and not in game.dead
         // maybe make a thumbs up message for the profile of who to kill and only kill them if all ALIVE mafia like it

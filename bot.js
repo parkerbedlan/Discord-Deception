@@ -19,6 +19,7 @@ function Game(type, host, guild, status='lobby')
     this.players = new Set()
     this.lobbyMsg = null
     this.playersRole = null
+    this.muted = false
 }
 module.exports = {
     minPlayers: {mafia: 1},
@@ -162,8 +163,11 @@ client.on('guildCreate', guild => {
     module.exports.getGeneralTextChannel(guild).send("Use ?help to see what I can do.")
 })
 
+// client.on('guildMemberSpeaking', (member, speaking))
+
 // when someone sends a message that the bot can see
 client.on('message', async msg => {
+    // console.log(msg.guild.channels.cache.find(ch => ch.type == 'voice').bitrate)
     // console.log(msg.content)
     if (!msg.content.startsWith('?') || msg.content.replace(/[?]/g,'').trim() == '' || msg.content.replace(/[?]/g,'').substring(0,1) == " ") return
 
