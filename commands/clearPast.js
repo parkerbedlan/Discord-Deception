@@ -1,6 +1,8 @@
 // When you change the code in the middle of a game, the bot doesn't get to do cleanup in endGame
 // This does the cleanUp for you instead of having to manually delete every channel and role.
 
+// todo: for production, put this right before a game starts in case endGame failed to do so
+
 module.exports = msg => {
     if (!msg.guild)
         return msg.reply('Dude this is for channels only')
