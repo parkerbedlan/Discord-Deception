@@ -163,7 +163,7 @@ client.on('guildCreate', guild => {
 // when someone sends a message that the bot can see
 client.on('message', async msg => {
     // console.log(msg.content)
-    if (!msg.content.startsWith('?')) return
+    if (!msg.content.startsWith('?') || msg.content.replace(/[?]/g,'').trim() == '' || msg.content.replace(/[?]/g,'').substring(0,1) == " ") return
 
     // todo: check that you have admin permissions first and return error if you don't
 
@@ -195,7 +195,7 @@ client.on('message', async msg => {
     {
         clearPast(msg)
     }
-    else if(msg.content.substring(1,2) != " ")
+    else if(msg.content.replace(/[?]/g,'').substring(0,1) != " ")
     {
         msg.reply("That's not a command. To see the full list of commands, type \"?help\".")
     }
