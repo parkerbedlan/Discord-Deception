@@ -1,6 +1,6 @@
 const { runningGames } = require("../bot")
 
-module.exports = msg => {
+module.exports = async msg => {
     const game = runningGames[msg.guild]
 
     if (!game || game.status != 'playing')
@@ -9,6 +9,8 @@ module.exports = msg => {
     // filler ending
     const winningTeam = 'everybody'
     msg.channel.send(`quality game, ${game.guild.name}. ${winningTeam} wins!`)
+
+    if (!game.playersRole) return   //??clear triggered first
 
     // clean up
     game.players.forEach(async player => {
@@ -21,8 +23,11 @@ module.exports = msg => {
     })
     game.playersRole.edit({color: 'DEFAULT'})
     game.playersRole.delete()
+    game.deadRole.edit({color: 'DEFAULT'})
+    game.deadRole.delete()
     game.categoryChannel.delete()
-    game.generalVoiceChannel.delete()
+    // console.log(game.generalVoiceChannel)
+    game.generalVoiceChannel.delete().catch(()=>{})
     game.generalTextChannel.delete()
 
     if (game.type == 'mafia')

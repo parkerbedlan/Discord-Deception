@@ -2,6 +2,7 @@
 
 //stuff to export
 let runningGames = new Object()  // {guild: Game} pairs
+let botchats = new Map()
 function Game(type, host, guild, status='lobby')
 {
     if (!(new Set(['mafia']).has(type)))
@@ -22,6 +23,8 @@ function Game(type, host, guild, status='lobby')
     this.muted = false
 }
 module.exports = {
+    botchats,
+
     minPlayers: {mafia: 1},
 
     maxPlayers: {mafia: 2},
@@ -29,6 +32,18 @@ module.exports = {
     runningGames,
 
     Game,
+
+    createBotchat(userSet)
+    {
+        let bcusers = new Map()
+        userSet.forEach(user => bcusers.set(user.id, user))
+        let bcusersStr = ''
+        bcusers.forEach(user => {
+            bcusersStr += user.username + '\n'
+            botchats.set(user, bcusers)
+        })
+        return [bcusers, bcusersStr]
+    },
 
     signUpMessage(game)
     {
@@ -135,6 +150,8 @@ const readyCommand = require('./commands/readyCommand') // called "readyCommand"
 const cancel = require('./commands/cancel')
 const end = require("./commands/endGame")
 const clearPast = require("./commands/clearPast")
+const kill = require('./commands/kill')
+const inspect = require('./commands/inspect')
 
 // what ?help shows
 const commandList = new Discord.MessageEmbed()
@@ -166,18 +183,45 @@ client.on('guildCreate', guild => {
 // client.on('guildMemberSpeaking', (member, speaking))
 
 // when someone sends a message that the bot can see
-client.on('message', async msg => {
-    // console.log(msg.guild.channels.cache.find(ch => ch.type == 'voice').bitrate)
+client.on('message', msg => {
+    if(msg.author.bot) return
+
     // console.log(msg.content)
+    if(!msg.guild && botchats.has(msg.author))
+    {
+        if(msg.cleanContent.toLowerCase().startsWith('?kill'))
+        {
+            if (kill(msg) != 'only mafia can use ?kill')
+                return
+        }
+        else if (msg.cleanContent.toLowerCase().startsWith('?inspect'))
+        {
+            if (inspect(msg) != 'only cops can use ?inspect')
+                return
+        }
+        const toSend = `**${msg.author.username}:**  ${msg.content}`
+        const bcusers = botchats.get(msg.author)
+        bcusers.forEach(user => {
+            if (user != msg.author)
+                user.send(toSend)
+        })
+        return
+    }
+
+    if(runningGames[msg.guild] && runningGames[msg.guild].muted && msg.channel == runningGames[msg.guild].generalTextChannel)
+    {
+        msg.delete()
+    }
+
     if (!msg.content.startsWith('?') || msg.content.replace(/[?]/g,'').trim() == '' || msg.content.replace(/[?]/g,'').substring(0,1) == " ") return
 
     // todo: check that you have admin permissions first and return error if you don't
 
-    if (msg.content == '?ping')
+    if (msg.content.toLowerCase() == '?ping')
     {
         msg.reply('Pong!')
     }
-    else if(msg.content == '?help')
+    else if(msg.content.toLowerCase() == '?help')
     {
         msg.channel.send(commandList)
     }

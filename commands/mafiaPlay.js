@@ -1,7 +1,9 @@
 // todo: on the first night, mafia only get to learn each others' identities; they don't get to kill
+// todo: make it less honor systemy
 
-const {runningGames, shuffleArray} = require('../bot.js')
+const {runningGames, shuffleArray, botchats, createBotchat} = require('../bot.js')
 const {Permissions, MessageEmbed} = require('discord.js')
+const startNight = require('./startNight')
 
 const shortToFull = {
     m: 'mafia',
@@ -30,6 +32,16 @@ module.exports = async msg => {
         }
     })
 
+    game.deadRole = await game.guild.roles.create({
+        data: {
+            name: 'Dead',
+            hoist: true,
+            position: 2,
+            mentionable: false,
+            color: '#a83a32'
+        }
+    })
+
     game.jobSets = {
         mafia: new Set(),
         innocent: new Set(),
@@ -37,6 +49,10 @@ module.exports = async msg => {
     }
     game.userToJob = new Map()
     game.dead = new Set()
+    game.alive = new Set()
+    game.players.forEach(player => {
+        game.alive.add(player)
+    })
 
     let jobHat = []
     if (game.players.size > 6)
@@ -44,8 +60,6 @@ module.exports = async msg => {
             jobHat.push('c')
     for (j = 0; j < Math.ceil(game.players.size * .226); j++)
         jobHat.push('m')
-    if (game.players.size > 8)
-        jobHat.push('d')
     while (jobHat.length < game.players.size)
         jobHat.push('i')
 
@@ -79,6 +93,12 @@ module.exports = async msg => {
                 type: 'role',
                 allow: new Permissions(3607616),
                 deny: new Permissions(2143876031)
+            },
+            {
+                id: game.deadRole,
+                type: 'role',
+                allow: new Permissions(1049600),
+                deny: new Permissions(2146434047)
             }
         ]
     })
@@ -102,43 +122,18 @@ module.exports = async msg => {
             .addField(`Night will start when everyone has raised their hand.`, `Feel free to hang out in Town Hall until Night starts.`)
     )
     jobConfirmationMsg.react('✋')
-    game.players.forEach(player => player.send(`Make sure to go to the comment in <#${game.guild.channels.cache.find(ch => ch.name == 'public-record').id}> and raise your hand so Night can start!`))
+    game.players.forEach(player => player.send(`Make sure to go to the comment in <#${game.generalTextChannel.id}> and raise your hand so Night can start!`))
     let readyPlayers = new Set()
     const filter = (reaction) => {return reaction.emoji.name === '✋'}
     const collector = jobConfirmationMsg.createReactionCollector(filter)
     collector.on('collect', (reaction, user) => {
         readyPlayers.add(user)
         if (readyPlayers.size == game.players.size + 1)
+        {
             collector.stop()
+            jobConfirmationMsg.delete()
+                .then(startNight(game))
+        }
+            
     })
-    collector.on('end', collected => {
-        // todo: first night different function (no mafia kill)
-        startNight(game)
-    })
-}
-
-function startNight(game)
-{
-    console.log('spooky')
-    game.generalTextChannel.send('The Night has fallen, and the Townspeople go to sleep...')
-    // todo: change Players role permissions (deny everything except CONNECT)
-    // game.categoryChannel.overwritePermissions([
-    //     {
-    //         id: game.playersRole,
-    //         type: 'role',
-    //         allow: new Permissions(1115136),
-    //         deny: new Permissions(2146368511)
-    //     }
-    // ])
-    game.muted = true
-    // idk what this does yet but I want it to mute everyone
-
-
-
-    // todo: make evil-lair text channel for mafia, tell them to use ?kill @player
-        // make sure the @ is in game.players and not in game.dead
-        // maybe make a thumbs up message for the profile of who to kill and only kill them if all ALIVE mafia like it
-        // show a bottom of chat timer - if they can't come to a consensus in the given time, they don't get to kill anyone
-        // delete evil-lair when done
-    // todo: same with cops (?investigate @player) in police-station (once that role is added)
 }

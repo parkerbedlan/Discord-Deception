@@ -39,11 +39,9 @@ def bitfield_sum(bigboi):
 
 print(bitfield_sum("""
 0x00000400
-0x00010000
 0x00100000
 """))
 
 all_codes.remove(0x00000400)
-all_codes.remove(0x00010000)
 all_codes.remove(0x00100000)
 print(sum(all_codes))

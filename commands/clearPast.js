@@ -3,7 +3,7 @@
 
 // todo: for production, put this right before a game starts in case endGame failed to do so
 
-module.exports = msg => {
+module.exports = async msg => {
     if (!msg.guild)
         return msg.reply('Dude this is for channels only')
 
@@ -23,14 +23,23 @@ module.exports = msg => {
     const playersRole = msg.guild.roles.cache.find(r => r.name == 'Players' && r.color == 9215743)
     if (playersRole)
     {
-        playersRole.edit({color: 'DEFAULT'})
-        playersRole.delete()
+        playersRole.edit({color: 'DEFAULT'}).catch(()=>{})
+        playersRole.delete().catch(()=>{})
     }
     else
     {
-        console.log(msg.guild.roles.cache)
+        // console.log(msg.guild.roles.cache)
     }
+
+    const deadRole = msg.guild.roles.cache.find(r => r.name == 'Dead' && r.color == 11024946)
+    if (deadRole)
+    {
+        deadRole.edit({color: 'DEFAULT'}).catch(()=>{})
+        deadRole.delete().catch(()=>{})
+    }
+
     const categoryChannel = msg.guild.channels.cache.find(ch => ch.name == 'Mafia Game')
+    // console.log(msg.guild.channels.cache)
     if (categoryChannel)
     {
         msg.guild.channels.cache.filter(ch => ch.parent == categoryChannel).forEach(ch => ch.delete())
