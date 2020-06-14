@@ -1,0 +1,18 @@
+daytime trial pseudocode:
+list players in #public-record
+	after some time (forcing discussion first):
+		dm them to "use ?nominate playernum once you've decided on a suspect to nominate" and link to #public-record for list/discussion
+	?vote playernum
+	if they're late, they vote for themselves
+in public-record, list nominees in order of highest to lowest
+	include in brackets who voted from them
+	e.g.: 3 votes: billybobjoe
+			[wiofwioejioefw, iweffjwefewoij, fwoiwijoe]
+[make first to the punch the tie breaker for 4+ way ties]
+if 3 way tie:	show suspect a,b,c
+else:		show suspect a,b
+dm everyone, listing lettered suspects
+	?vote playernum
+only one revote:
+	if second tie, go straight to night
+when killed: reveal their role to public-record like you would to a cop

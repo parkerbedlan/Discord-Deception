@@ -1,12 +1,16 @@
+// mafia-specific (todo: needs to be generalized!)
+
+// todo: rename lobby.js
 // todo: make emojis based on a function (convert kevin's job generator into a bot.js function that can work with it)
 // todo: make a new version of the lobby message that basically copies UnoBot
+    // important part: list players on message! this eliminates need for bot unliking when host likes (massive headache)
 // todo: this setup program can probably be generalized like readyCommand.js was
 // todo: implement autostart argument
-// idea: rename lobby?
 
 const {runningGames, Game, signUpMessage, maxPlayers, unreact} = require('../bot.js');
 const readyCommand = require('./readyCommand');
 const cancel = require('./cancel.js');
+const clearPast = require('./clearPast.js');
 
 //this is the mafia1 branch, I guess
 module.exports = async (client, msg) => {
@@ -22,10 +26,9 @@ module.exports = async (client, msg) => {
     {
         return msg.reply('Sorry, a discord deception game is already happening in this server. You\'ll have to wait for the current one to finish before starting a new one.')
     }
-    else
-    {
-        runningGames[msg.guild] = new Game('mafia', msg.author, msg.guild)
-    }
+
+    clearPast(msg)
+    runningGames[msg.guild] = new Game('mafia', msg.author, msg.guild)
     const game = runningGames[msg.guild]
 
     // gather players

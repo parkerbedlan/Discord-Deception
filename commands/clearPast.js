@@ -1,7 +1,8 @@
-// When you change the code in the middle of a game, the bot doesn't get to do cleanup in endGame
+// debugging
+// When you change the code in the middle of a game, the bot doesn't get to do cleanup
 // This does the cleanUp for you instead of having to manually delete every channel and role.
 
-// todo: for production, put this right before a game starts in case endGame failed to do so
+// todo: for production, put this right before a game starts in case cleanup never happened
 
 module.exports = async msg => {
     if (!msg.guild)

@@ -1,3 +1,4 @@
+// generalized
 const {runningGames} = require('../bot.js');
 
 module.exports = msg => {
@@ -16,6 +17,7 @@ module.exports = msg => {
         return msg.channel.send("Only the host (<@!" + game.host + ">) can ?cancel the game, you trickster you.")
     }
 
+    game.lobbyMsg.delete()
     delete runningGames[msg.guild]
     msg.reply('Your game has been #cancelled')
 }

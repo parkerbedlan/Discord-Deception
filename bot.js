@@ -1,6 +1,10 @@
+// todo: refactor event handlers into events folder
 // todo: create a Player object with traits like dead and job and user
+// note: each command is labeled at the top as generalized, [game.type]-specific, or debugging
+    // todo: refactor game-specific commands into a commands/[game.type] folder
+// idea: give discord-deception ?botwipe for nongame channels
 
-//stuff to export
+// exports
 let runningGames = new Object()  // {guild: Game} pairs
 let botchats = new Map()
 function Game(type, host, guild, status='lobby')
@@ -152,6 +156,8 @@ const end = require("./commands/endGame")
 const clearPast = require("./commands/clearPast")
 const kill = require('./commands/kill')
 const inspect = require('./commands/inspect')
+const cleanup = require("./commands/cleanup")
+const accuse = require("./commands/accuse")
 
 // what ?help shows
 const commandList = new Discord.MessageEmbed()
@@ -207,6 +213,13 @@ client.on('message', msg => {
         })
         return
     }
+    else if (!msg.guild)
+    {
+        if (msg.cleanContent.toLowerCase().startsWith('?accuse'))
+        {
+            accuse(msg)
+        }
+    }
 
     if(runningGames[msg.guild] && runningGames[msg.guild].muted && msg.channel == runningGames[msg.guild].generalTextChannel)
     {
@@ -237,13 +250,26 @@ client.on('message', msg => {
     {
         cancel(msg)
     }
+    else if (msg.content.toLowerCase() == '?cleanup')
+    {
+        if(runningGames[msg.guild] && runningGames[msg.guild].status == 'ended')
+            cleanup(runningGames[msg.guild])
+    }
     else if(msg.content.toLowerCase() == '??end')   //only for debugging
     {
-        end(msg)
+        if(runningGames[msg.guild] && runningGames[msg.guild].status == 'playing')
+            end(runningGames[msg.guild])
+        else
+            msg.reply("That debugging command can only be used during a running game.")
     }
     else if(msg.content.toLowerCase() == '??clear') //only for debugging
     {
         clearPast(msg)
+    }
+    else if(/^[?](kill|inspect|accuse|vote)/i.test(msg.cleanContent))
+    {
+        msg.delete()
+        msg.reply("That command only works when you DM it to me.")
     }
     else if(msg.content.replace(/[?]/g,'').substring(0,1) != " ")
     {

@@ -1,5 +1,19 @@
 NOTE: calling secret game roles "jobs" to make a distinction between discord roles and in-game secret game JOBS 
 
+daytime trial pseudocode:
+	dm everyone, listing remaining players, asking for nomination.
+		?vote playernum
+		if they're late, they vote for themselves
+	in public-record, list nominees in order of highest to lowest
+		include in brackets who voted from them
+		e.g.: 3 votes: billybobjoe
+				[wiofwioejioefw, iweffjwefewoij, fwoiwijoe]
+	[make first to the punch the tie breaker for 4+ way ties]
+	if 3 way tie:	show suspect a,b,c
+	if 2 way tie:	show suspect a,b
+	dm everyone, listing lettered suspects
+		?vote playernum
+
 
 best rules imo: http://org.ntnu.no/mafia/Game/game.shtml		http://org.ntnu.no/mafia/Rules/rules.shtml
 	dead don't talk (duh)

@@ -1,9 +1,13 @@
+// mafia-specific (todo: make it generalized)
+
 // todo: on the first night, mafia only get to learn each others' identities; they don't get to kill
 // todo: make it less honor systemy
+// todo: rename file startMafia.js
+// todo: make list of all Game properties (some documentation), separating universal Game properties and Mafia Game properties
 
 const {runningGames, shuffleArray, botchats, createBotchat} = require('../bot.js')
 const {Permissions, MessageEmbed} = require('discord.js')
-const startNight = require('./startNight')
+const {execute:startNight} = require('./startNight')
 
 const shortToFull = {
     m: 'mafia',
@@ -21,6 +25,15 @@ module.exports = async msg => {
     game.players.delete(msg.client.user)
     game.players.add(game.host)
     console.log(`Starting ${game.type} game with ${game.players.size} player${game.players.size > 1 ? 's' : ''}`)
+
+    // todo: create game.numToPlayer
+    game.numToPlayer = new Map()
+    let i = 1
+    game.players.forEach(player => game.numToPlayer.set(i++, player))
+    for ([k,v] of game.numToPlayer)
+    {
+        console.log(`${k}: ${v.username}`)
+    }
 
     game.playersRole = await game.guild.roles.create({
         data: {
@@ -47,7 +60,8 @@ module.exports = async msg => {
         innocent: new Set(),
         cop: new Set()
     }
-    game.userToJob = new Map()
+    game.playerToJob = new Map()
+    game.playerToDeadJob = new Map()
     game.dead = new Set()
     game.alive = new Set()
     game.players.forEach(player => {
@@ -65,6 +79,7 @@ module.exports = async msg => {
 
     jobHat = shuffleArray(jobHat)
     console.log(jobHat)
+    // todo: number players too
     game.players.forEach(async player => {
         // give public 'Players' role
         const member = await game.guild.member(player)
@@ -72,7 +87,7 @@ module.exports = async msg => {
         // pull their secret job from a hat
         const job = shortToFull[jobHat.pop()]
         console.log(`${player.username}: ${job}`)
-        game.userToJob.set(player, job)
+        game.playerToJob.set(player, job)
         game.jobSets[job].add(player)
         // console.log(`DMing ${player.username}...`)
         player.send(`Your secret role is: ||**${job}**||. Shhh, don't tell anyone...`)

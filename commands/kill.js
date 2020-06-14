@@ -1,8 +1,10 @@
+// mafia-specific
 const {botchats, runningGames} = require('../bot.js')
+const {copNight} = require('./startNight.js')
 module.exports = msg => {
     if(!botchats.has(msg.author)) return
     const game = Object.values(runningGames).find(g => g.players.has(msg.author))
-    if(!game.jobSets.mafia.has(msg.author)) return 'only mafia can use ?kill'
+    if(!game.jobSets.mafia.has(msg.author) || game.dead.has(msg.author)) return 'only mafia can use ?kill'
 
     const bcusers = botchats.get(msg.author)
     const victimUsername = msg.cleanContent.replace(/[?]kill/g,'').trim()
@@ -22,5 +24,6 @@ module.exports = msg => {
             botchats.delete(user)  
         })
         game.nightKill = victimUser
+        copNight(game)
     }
 }

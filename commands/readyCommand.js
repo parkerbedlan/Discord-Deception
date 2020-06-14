@@ -1,3 +1,4 @@
+// generalized
 // called "readyCommand" to differentiate from the "ready" event
 
 const {runningGames, minPlayers} = require('../bot.js');
@@ -24,7 +25,6 @@ module.exports = msg => {
     }
     else
     {
-        // todo: fix the fact that deleting this triggers an end, which then triggers a second readyCommand()
         game.lobbyMsg.delete()
         game.lobbyMsg = null
         require(`./${game.type}Play`)(msg)
