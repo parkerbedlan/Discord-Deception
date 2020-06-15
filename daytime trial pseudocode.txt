@@ -1,10 +1,10 @@
 daytime trial pseudocode:
 list players in #public-record
 	after some time (forcing discussion first):
-		dm them to "use ?nominate playernum once you've decided on a suspect to nominate" and link to #public-record for list/discussion
+		dm them to "use ?accuse playernum once you've decided on a suspect to accuse" and link to #public-record for list/discussion
 	?vote playernum
 	if they're late, they vote for themselves
-in public-record, list nominees in order of highest to lowest
+in public-record, list accusees in order of highest to lowest
 	include in brackets who voted from them
 	e.g.: 3 votes: billybobjoe
 			[wiofwioejioefw, iweffjwefewoij, fwoiwijoe]

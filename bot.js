@@ -2,6 +2,7 @@
 // todo: create a Player object with traits like dead and job and user
 // note: each command is labeled at the top as generalized, [game.type]-specific, or debugging
     // todo: refactor game-specific commands into a commands/[game.type] folder
+// todo: host on vercel https://youtu.be/1Bfb8pSvoQo https://u.nu/3zs6q https://u.nu/ooxyy
 // idea: give discord-deception ?botwipe for nongame channels
 
 // exports
@@ -29,9 +30,9 @@ function Game(type, host, guild, status='lobby')
 module.exports = {
     botchats,
 
-    minPlayers: {mafia: 1},
+    minPlayers: {mafia: 3},
 
-    maxPlayers: {mafia: 2},
+    maxPlayers: {mafia: 20},
 
     runningGames,
 
@@ -54,21 +55,23 @@ module.exports = {
         jobEmojis = {
             mafia(playerCount)
             {
-                // secret hitler jobs as a placeholder
-                // example: :smiling_imp: :smiling_imp: :angel: :angel: :angel: :angel: :cop: :man_health_worker:
-                return [
-                    'What is a game if there is nobody to play it?',
-                    ':smiling_imp:',
-                    ':smiling_imp: :angel:',
-                    'We need more players to start the game.',
-                    'We need more players to start the game.',
-                    ':japanese_ogre: :guard: :angel: :angel: :angel:',
-                    ':japanese_ogre: :guard: :angel: :angel: :angel: :angel:',
-                    ':japanese_ogre: :guard: :guard: :angel: :angel: :angel: :angel:',
-                    ':japanese_ogre: :guard: :guard: :angel: :angel: :angel: :angel: :angel:',
-                    ':japanese_ogre: :guard: :guard: :guard: :angel: :angel: :angel: :angel: :angel:',
-                    ':japanese_ogre: :guard: :guard: :guard: :angel: :angel: :angel: :angel: :angel: :angel:'
-                ][playerCount]
+                let jobHat = []
+                for (j = 0; j < Math.ceil(game.players.size * .226); j++)
+                    jobHat.push('m')
+                if (game.players.size > 6)
+                    for (i = 0; i < Math.ceil(game.players.size * .051); i++)
+                        jobHat.push('c')
+                while (jobHat.length < game.players.size)
+                    jobHat.push('i')
+                
+                const jobToEmoji = {
+                    'm':':smiling_imp:',
+                    'c': ':cop:',
+                    'i': ':angel:'
+                }
+
+                const output = jobHat.map(job => jobToEmoji[job]).join(' ')
+                return output ? output : 'What is a game if there is nobody to play it?'
             },
     
             secretHitler(playerCount)
@@ -158,6 +161,7 @@ const kill = require('./commands/kill')
 const inspect = require('./commands/inspect')
 const cleanup = require("./commands/cleanup")
 const accuse = require("./commands/accuse")
+const vote = require("./commands/vote")
 
 // what ?help shows
 const commandList = new Discord.MessageEmbed()
@@ -218,6 +222,12 @@ client.on('message', msg => {
         if (msg.cleanContent.toLowerCase().startsWith('?accuse'))
         {
             accuse(msg)
+            return
+        }
+        else if (msg.cleanContent.toLowerCase().startsWith('?vote'))
+        {
+            vote(msg)
+            return
         }
     }
 

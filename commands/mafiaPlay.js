@@ -26,7 +26,6 @@ module.exports = async msg => {
     game.players.add(game.host)
     console.log(`Starting ${game.type} game with ${game.players.size} player${game.players.size > 1 ? 's' : ''}`)
 
-    // todo: create game.numToPlayer
     game.numToPlayer = new Map()
     let i = 1
     game.players.forEach(player => game.numToPlayer.set(i++, player))
@@ -69,11 +68,11 @@ module.exports = async msg => {
     })
 
     let jobHat = []
+    for (j = 0; j < Math.ceil(game.players.size * .226); j++)
+        jobHat.push('m')
     if (game.players.size > 6)
         for (i = 0; i < Math.ceil(game.players.size * .051); i++)
             jobHat.push('c')
-    for (j = 0; j < Math.ceil(game.players.size * .226); j++)
-        jobHat.push('m')
     while (jobHat.length < game.players.size)
         jobHat.push('i')
 

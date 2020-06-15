@@ -6,7 +6,7 @@
 
 module.exports = async msg => {
     if (!msg.guild)
-        return msg.reply('Dude this is for channels only')
+        return msg.reply('Dude ??clear is for channels only')
 
     msg.guild.members.fetch()
         .then(members => {

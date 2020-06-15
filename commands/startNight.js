@@ -1,10 +1,19 @@
 // mafia-specific
 const {Permissions, MessageEmbed} = require('discord.js')
-const startMorning = require('./startMorning')
+const {execute:startMorning} = require('./startMorning')
 const {createBotchat} = require('../bot.js')
 module.exports = {
     execute: async game => {
         console.log('night')
+
+        // clean up previous morning messages
+        if (game.voteMsg)
+        {
+            await game.allPlayersMsg.delete()
+            await game.accuseMsg.delete()
+            await game.suspectsMsg.delete()
+            await game.voteMsg.delete()
+        }
 
         // restrict permissions
         game.muted = true
