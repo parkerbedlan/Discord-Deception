@@ -1,7 +1,8 @@
 // mafia-specific
 const {Permissions, MessageEmbed} = require('discord.js')
-const {execute:startMorning} = require('./startMorning')
+// const {execute:startMorning} = require('./startMorning')
 const {createBotchat} = require('../bot.js')
+
 module.exports = {
     execute: async game => {
         console.log('night')
@@ -42,16 +43,16 @@ module.exports = {
         game.remainingPlayers = ''
         game.alive.forEach(user => game.remainingPlayers += user.username + '\n')
 
-        mafiaNight(game, true)
+        mafiaNight(game)
     },
 
     mafiaNight,
     copNight
 }
 
-function mafiaNight(game, firstNight=false)
+function mafiaNight(game)
 {
-    if (!firstNight) // not the first night
+    if (!game.firstNight) // not the first night
     {
         // todo: assign each player a number at beginning of game, show in order but exclude dead ones
         // todo: show a bottom of chat timer - if they can't come to a consensus in the given time, they don't get to kill anyone
@@ -106,6 +107,7 @@ function copNight(game)
     }
     else
     {
-        startMorning(game)
+        // startMorning(game)
+        game.emit('startMorning', game)
     }
 }

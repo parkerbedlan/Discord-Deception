@@ -14,7 +14,7 @@ const clearPast = require('./clearPast.js');
 
 //this is the mafia1 branch, I guess
 module.exports = async (client, msg) => {
-    console.log(runningGames)
+    // console.log(runningGames)
     if (!msg.guild)
     {
         return msg.reply("While a single player deception game would be really easy, it's best played in a server where there are, yunno, people you can play with.")

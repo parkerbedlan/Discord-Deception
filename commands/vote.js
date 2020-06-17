@@ -14,7 +14,7 @@ module.exports = msg => {
         return msg.reply(`You can only vote once, and you've already voted for ${games.votes.get(msg.author)}`)
     else
     {
-        console.log(game.suspects)
+        // console.log(game.suspects)
         
         const voted = game.suspects.get(voteSearch[1].toLowerCase())
         game.votes.set(msg.author, voted)

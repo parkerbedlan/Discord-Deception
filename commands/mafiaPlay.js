@@ -8,6 +8,7 @@
 const {runningGames, shuffleArray, botchats, createBotchat} = require('../bot.js')
 const {Permissions, MessageEmbed} = require('discord.js')
 const {execute:startNight} = require('./startNight')
+const {execute:startMorning} = require('./startMorning')
 
 const shortToFull = {
     m: 'mafia',
@@ -146,7 +147,12 @@ module.exports = async msg => {
         {
             collector.stop()
             jobConfirmationMsg.delete()
-                .then(startNight(game))
+                .then(() => {
+                    game.on('startMorning', startMorning)
+                    game.on('startNight', startNight)
+
+                    game.emit('startNight', game)
+                })
         }
             
     })

@@ -26,11 +26,26 @@ function Game(type, host, guild, status='lobby')
     this.lobbyMsg = null
     this.playersRole = null
     this.muted = false
+    this.firstNight = true
+
+    this.handlers = {}
+    this.on = (eventName, handler) =>
+    {
+        if (!this.handlers[eventName])
+          this.handlers[eventName] = [];
+    
+        this.handlers[eventName].push(handler);
+    }
+    this.emit = (eventName, data) =>
+    {
+        for (const handler of this.handlers[eventName])
+            handler(data)
+    }
 }
 module.exports = {
     botchats,
 
-    minPlayers: {mafia: 3},
+    minPlayers: {mafia: 2},
 
     maxPlayers: {mafia: 20},
 

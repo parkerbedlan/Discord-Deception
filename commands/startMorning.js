@@ -1,11 +1,12 @@
 // mafia-specific
 const {Permissions, MessageEmbed} = require('discord.js')
+// const {execute:startNight} = require('./startNight')
 const endGame = require('./endGame')
-const {execute:startNight} = require('./startNight')
 
 module.exports = {
     execute: async game => {
         console.log('morning')
+        game.firstNight = false
 
         // undo night permissions
         game.muted = false
@@ -146,20 +147,20 @@ async function startVoting(game)
             susb = accuseds.next().value
             susc = accuseds.next().value
             game.suspects = new Map([['a',susa],['b',susb],['c',susc]])
-            suspectsDisplay = `a: ${susa.username}\nb: ${susb.username}\nc: ${susc.username}`
+            game.suspectsDisplay = `a: ${susa.username}\nb: ${susb.username}\nc: ${susc.username}`
         }  
         else if (game.voteTally.size > 1)
         {
             susa = accuseds.next().value
             susb = accuseds.next().value
             game.suspects = new Map([['a',susa],['b',susb]])
-            suspectsDisplay = `a: ${susa.username}\nb: ${susb.username}`
+            game.suspectsDisplay = `a: ${susa.username}\nb: ${susb.username}`
         }
         else // only one person accused
         {
             susa = accuseds.next().value
             game.suspects = new Map([['a',susa]])
-            suspectsDisplay = `a: ${susa.username}`
+            game.suspectsDisplay = `a: ${susa.username}`
             game.votes = new Map()
             game.voteTally = new Map([[susa, game.alive]])
             startHanging(game)
@@ -171,7 +172,7 @@ async function startVoting(game)
     game.suspectsMsgEmbed = new MessageEmbed()
         .setColor('#8c9eff')
         .setTitle('Suspects to vote on')
-        .setDescription(suspectsDisplay)
+        .setDescription(game.suspectsDisplay)
     game.suspectsMsg = await game.generalTextChannel.send(game.suspectsMsgEmbed)
 
     game.votes = new Map()
@@ -216,7 +217,7 @@ async function startHanging(game)
         amt2 = amts.next().value.size
         if (amt1 == amt2)
         {
-            if (game.suspects.size == 3)
+            if (game.suspects.size == 3 && amt2 > amts.next().value.size)
             {
                 const suses = game.voteTally.keys()
                 const susa = suses.next().value
@@ -235,7 +236,8 @@ async function startHanging(game)
             else
             {
                 game.generalTextChannel.send("The town was unable to agree on who to kill, and the sun set before they were able to decide. Nobody was killed today.")
-                startNight(game)
+                // startNight(game)
+                game.emit('startNight', game)
                 return
             }
             
@@ -264,11 +266,9 @@ async function startHanging(game)
         console.log('no winner yet')
 
     // todo: add some time to be shocked and discuss
-    setTimeout(()=>{
-        game.generalTextChannel.send('All that voting has made everyone really sleepy.')
-        startNight(game)
-    }, 10000)
-    
+    game.generalTextChannel.send('All that voting has made everyone really sleepy.')
+    // startNight(game)
+    game.emit('startNight', game)
     
 }
 
