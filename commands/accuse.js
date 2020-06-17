@@ -32,6 +32,7 @@ module.exports = msg => {
 
     if (game.votes.size == game.alive.size)
     {
+        game.revote = false
         startVoting(game)
     }
 }
