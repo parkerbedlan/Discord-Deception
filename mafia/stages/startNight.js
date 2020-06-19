@@ -1,7 +1,6 @@
 // mafia-specific
 const {Permissions, MessageEmbed} = require('discord.js')
-// const {execute:startMorning} = require('./startMorning')
-const {createBotchat} = require('../bot.js')
+const {createBotchat} = require.main.require('./bot.js')
 
 module.exports = {
     execute: async game => {
@@ -43,7 +42,7 @@ module.exports = {
         game.remainingPlayers = ''
         game.alive.forEach(user => game.remainingPlayers += user.username + '\n')
 
-        mafiaNight(game)
+        game.emit('mafiaNight')
     },
 
     mafiaNight,
@@ -78,11 +77,11 @@ function mafiaNight(game)
         let mafiaStr = ''
         game.jobSets.mafia.forEach(user => mafiaStr += user.username + '\n')
         game.jobSets.mafia.forEach(user => user.send('These are your partners in crime:\n'+ mafiaStr))
-        copNight(game)
+        game.emit('copNight')
     }
     else // only 1 mafia and the first night
     {
-        copNight(game)
+        game.emit('copNight')
     }
 }
 
@@ -107,7 +106,6 @@ function copNight(game)
     }
     else
     {
-        // startMorning(game)
-        game.emit('startMorning', game)
+        game.emit('startMorning')
     }
 }

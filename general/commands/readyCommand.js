@@ -1,8 +1,9 @@
 // generalized
 // called "readyCommand" to differentiate from the "ready" event
 
-const {runningGames, minPlayers} = require('../bot.js');
-// const mafiaPlay = require('./mafiaPlay')
+const root = require.main
+const {runningGames, minPlayers} = root.require('./bot.js');
+const startMafia = root.require('./mafia/startMafia.js')
 
 module.exports = msg => {
     const game = runningGames[msg.guild]
@@ -27,6 +28,7 @@ module.exports = msg => {
     {
         game.lobbyMsg.delete()
         game.lobbyMsg = null
-        require(`./${game.type}Play`)(msg)
+        if (game.type == 'mafia')
+            startMafia(msg)
     }
 }

@@ -7,13 +7,15 @@
 // todo: this setup program can probably be generalized like readyCommand.js was
 // todo: implement autostart argument
 
-const {runningGames, Game, signUpMessage, maxPlayers, unreact} = require('../bot.js');
-const readyCommand = require('./readyCommand');
-const cancel = require('./cancel.js');
-const clearPast = require('./clearPast.js');
+const root = require.main
+const Game = root.require('./general/resources/game')
+const {runningGames, generateLobbyMessage, maxPlayers, unreact} = root.require('./bot.js')
+const readyCommand = root.require('./general/commands/readyCommand')
+const cancel = root.require('./general/commands/cancel')
+const clearPast = root.require('./general/commands/clearPast')
 
 //this is the mafia1 branch, I guess
-module.exports = async (client, msg) => {
+module.exports = async (msg, type) => {
     // console.log(runningGames)
     if (!msg.guild)
     {
@@ -33,7 +35,7 @@ module.exports = async (client, msg) => {
     const game = runningGames[msg.guild]
 
     // gather players
-    const sUmsg = await msg.channel.send(signUpMessage(game))
+    const sUmsg = await msg.channel.send(generateLobbyMessage(game))
     game.lobbyMsg = sUmsg
     msg.reply('You\'re the host. Use ?ready when everyone has joined. If you change your mind, use ?cancel')
     
@@ -47,7 +49,7 @@ module.exports = async (client, msg) => {
 
         if (u.equals(game.host))
             await unreact(sUmsg, '✋');
-        await sUmsg.edit(undefined, signUpMessage(game))
+        await sUmsg.edit(undefined, generateLobbyMessage(game))
         
         if (game.players.size == maxPlayers.mafia)
         {
@@ -69,7 +71,7 @@ module.exports = async (client, msg) => {
             await sUmsg.react('✋')
         }
         
-        await sUmsg.edit(undefined, signUpMessage(game))
+        await sUmsg.edit(undefined, generateLobbyMessage(game))
     });
 
     await sUmsg.react('✋')

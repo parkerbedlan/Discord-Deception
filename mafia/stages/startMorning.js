@@ -1,7 +1,5 @@
 // mafia-specific
-const {Permissions, MessageEmbed} = require('discord.js')
-// const {execute:startNight} = require('./startNight')
-const endGame = require('./endGame')
+const {Permissions, MessageEmbed, PartialGroupDMChannel} = require('discord.js')
 
 module.exports = {
     execute: async game => {
@@ -46,7 +44,7 @@ module.exports = {
             if (winnerCheck(game))
             {
                 console.log('winner winner chicken dinner: ' + game.winner)
-                endGame(game)
+                game.emit('endGame')
                 return
             }
             else
@@ -60,7 +58,7 @@ module.exports = {
         // trial
         game.generalTextChannel.send("Anyways, time to hang someone!")
     
-        startAccusing(game)
+        game.emit('startAccusing')
     },
     startAccusing,
     startVoting,
@@ -163,7 +161,7 @@ async function startVoting(game)
             game.suspectsDisplay = `a: ${susa.username}`
             game.votes = new Map()
             game.voteTally = new Map([[susa, game.alive]])
-            startHanging(game)
+            game.emit('startHanging')
             return
         }
     }
@@ -230,14 +228,13 @@ async function startHanging(game)
             {
                 game.revote = true
                 game.generalTextChannel.send("Welp, it's a tie. The town will get only one chance to revote, and if it's a tie again, nobody will be hanged and we will go straight to night.")
-                startVoting(game)
+                game.emit('startVoting')
                 return
             }
             else
             {
                 game.generalTextChannel.send("The town was unable to agree on who to kill, and the sun set before they were able to decide. Nobody was killed today.")
-                // startNight(game)
-                game.emit('startNight', game)
+                game.emit('startNight')
                 return
             }
             
@@ -259,7 +256,7 @@ async function startHanging(game)
     if (winnerCheck(game))
     {
         console.log('winner winner chicken dinner: ' + game.winner)
-        endGame(game)
+        game.emit('endGame')
         return
     }
     else
@@ -267,8 +264,7 @@ async function startHanging(game)
 
     // todo: add some time to be shocked and discuss
     game.generalTextChannel.send('All that voting has made everyone really sleepy.')
-    // startNight(game)
-    game.emit('startNight', game)
+    game.emit('startNight')
     
 }
 

@@ -2,13 +2,14 @@
 
 // todo: on the first night, mafia only get to learn each others' identities; they don't get to kill
 // todo: make it less honor systemy
-// todo: rename file startMafia.js
 // todo: make list of all Game properties (some documentation), separating universal Game properties and Mafia Game properties
 
-const {runningGames, shuffleArray, botchats, createBotchat} = require('../bot.js')
 const {Permissions, MessageEmbed} = require('discord.js')
-const {execute:startNight} = require('./startNight')
-const {execute:startMorning} = require('./startMorning')
+const root = require.main
+const {runningGames, shuffleArray, botchats} = root.require('./bot.js')
+const {execute:startNight, mafiaNight, copNight} = root.require('./mafia/stages/startNight')
+const {execute:startMorning, startAccusing, startVoting, startHanging} = root.require('./mafia/stages/startMorning')
+const endGame = root.require('./mafia/stages/endGame')
 
 const shortToFull = {
     m: 'mafia',
@@ -148,10 +149,16 @@ module.exports = async msg => {
             collector.stop()
             jobConfirmationMsg.delete()
                 .then(() => {
-                    game.on('startMorning', startMorning)
-                    game.on('startNight', startNight)
+                    game.on('startNight', () => {startNight(game)})
+                    game.on('mafiaNight', () => {mafiaNight(game)})
+                    game.on('copNight', () => {copNight(game)})
+                    game.on('startMorning', () => {startMorning(game)})
+                    game.on('startAccusing', () => {startAccusing(game)})
+                    game.on('startVoting', () => {startVoting(game)})
+                    game.on('startHanging', () => {startHanging(game)})
+                    game.on('endGame', () => {endGame(game)})
 
-                    game.emit('startNight', game)
+                    game.emit('startNight')
                 })
         }
             

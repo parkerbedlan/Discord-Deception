@@ -1,6 +1,6 @@
 // mafia-specific
-const {runningGames} = require('../bot.js')
-const {startHanging} = require('./startMorning')
+const root = require.main
+const {runningGames} = root.require('./bot.js')
 
 module.exports = msg => {
     const game = Object.values(runningGames).find(g => g.alive.has(msg.author))
@@ -27,6 +27,6 @@ module.exports = msg => {
 
     if(game.votes.size == game.alive.size)
     {
-        startHanging(game)
+        game.emit('startHanging')
     }
 }

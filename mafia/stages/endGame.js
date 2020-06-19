@@ -6,9 +6,9 @@ module.exports = async game => {
     if (game.type == 'mafia')
     {
         if (winningTeam == 'The Mafia')
-        game.generalTextChannel.send("The final innocent townsperson has been killed. The mafia have successfully taken over the city.")
-    else if (winningTeam == 'The Town')
-        game.generalTextChannel.send("The final mafia member has been killed. The townspeople can finally live in peace. For now...")
+            game.generalTextChannel.send("The final innocent townsperson has been killed. The mafia have successfully taken over the city.")
+        else if (winningTeam == 'The Town')
+            game.generalTextChannel.send("The final mafia member has been killed. The townspeople can finally live in peace. For now...")
     }
     
     game.generalTextChannel.send(`Quality game, ${game.guild.name}. **${winningTeam} wins!**`)

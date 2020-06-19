@@ -1,6 +1,6 @@
 // mafia-specific
-const {botchats, runningGames} = require('../bot.js')
-const startMorning = require('./startMorning')
+const root = require.main
+const {botchats, runningGames} = root.require('./bot.js')
 module.exports = msg => {
     if(!botchats.has(msg.author)) return
     const game = Object.values(runningGames).find(g => g.players.has(msg.author))
@@ -23,6 +23,6 @@ module.exports = msg => {
             user.send(`**${suspectUsername}**'s secret identity is: ***${game.playerToJob.get(suspectUser)}***. Return to <#${game.generalTextChannel.id}>`)
             botchats.delete(user)
         })
-        startMorning(game)
+        game.emit('startMorning')
     }
 }

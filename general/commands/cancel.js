@@ -1,5 +1,5 @@
 // generalized
-const {runningGames} = require('../bot.js');
+const {runningGames} = require.main.require('./bot.js');
 
 module.exports = msg => {
     const game = runningGames[msg.guild]
