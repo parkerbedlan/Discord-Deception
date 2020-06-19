@@ -31,7 +31,7 @@ module.exports = async msg => {
     game.numToPlayer = new Map()
     let i = 1
     game.players.forEach(player => game.numToPlayer.set(i++, player))
-    for ([k,v] of game.numToPlayer)
+    for (const [k,v] of game.numToPlayer)
     {
         console.log(`${k}: ${v.username}`)
     }
@@ -70,10 +70,10 @@ module.exports = async msg => {
     })
 
     let jobHat = []
-    for (j = 0; j < Math.ceil(game.players.size * .226); j++)
+    for (let j = 0; j < Math.ceil(game.players.size * .226); j++)
         jobHat.push('m')
     if (game.players.size > 6)
-        for (i = 0; i < Math.ceil(game.players.size * .051); i++)
+        for (let i = 0; i < Math.ceil(game.players.size * .051); i++)
             jobHat.push('c')
     while (jobHat.length < game.players.size)
         jobHat.push('i')

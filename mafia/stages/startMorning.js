@@ -69,7 +69,7 @@ async function startAccusing(game)
 {
     let aliveStr = ''
     let deadStr = ''
-    for ([num, player] of game.numToPlayer)
+    for (const [num, player] of game.numToPlayer)
     {
         let paddedNum = ' '+num
         paddedNum = paddedNum.substring(paddedNum.length-2)
@@ -117,7 +117,7 @@ async function startVoting(game)
         game.generalTextChannel.send("The last accusation has been received. Here are the results:")
         game.voteTally = new Map([...game.voteTally.entries()].sort((a, b) => b[1].size - a[1].size))
         let accuseDisplay = ''
-        for ([player, voters] of game.voteTally)
+        for (const [player, voters] of game.voteTally)
             accuseDisplay += `${voters.size} votes: ${player.username}\n\t${'['+Array.from(voters).map(p => p.username).join(', ')+']'}\n`
         game.accuseMsg = await game.generalTextChannel.send(new MessageEmbed()
             .setColor('#8c9eff')
@@ -141,22 +141,22 @@ async function startVoting(game)
         game.suspectsDisplay = ''
         if (game.voteTally.size >= 3 && amt2 == amt3)
         {
-            susa = accuseds.next().value
-            susb = accuseds.next().value
-            susc = accuseds.next().value
+            const susa = accuseds.next().value
+            const susb = accuseds.next().value
+            const susc = accuseds.next().value
             game.suspects = new Map([['a',susa],['b',susb],['c',susc]])
             game.suspectsDisplay = `a: ${susa.username}\nb: ${susb.username}\nc: ${susc.username}`
         }  
         else if (game.voteTally.size > 1)
         {
-            susa = accuseds.next().value
-            susb = accuseds.next().value
+            const susa = accuseds.next().value
+            const susb = accuseds.next().value
             game.suspects = new Map([['a',susa],['b',susb]])
             game.suspectsDisplay = `a: ${susa.username}\nb: ${susb.username}`
         }
         else // only one person accused
         {
-            susa = accuseds.next().value
+            const susa = accuseds.next().value
             game.suspects = new Map([['a',susa]])
             game.suspectsDisplay = `a: ${susa.username}`
             game.votes = new Map()
@@ -193,7 +193,7 @@ async function startHanging(game)
 
         game.generalTextChannel.send("The results are in: ")
         let voteDisplay = ''
-        for ([player, voters] of game.voteTally)
+        for (const [player, voters] of game.voteTally)
             voteDisplay += `${voters.size} votes: ${player.username}\n\t${'['+Array.from(voters).map(p => p.username).join(', ')+']'}\n`
         game.voteMsg = await game.generalTextChannel.send(new MessageEmbed()
             .setColor('#8c9eff')

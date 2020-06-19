@@ -5,6 +5,7 @@ const {runningGames, botchats} = root.require('./bot')
 const lobby = root.require('./general/commands/lobby')
 const readyCommand = root.require('./general/commands/readyCommand')
 const cancel = root.require('./general/commands/cancel')
+const help = root.require('./general/commands/help')
 
 const kill = root.require('./mafia/commands/kill')
 const inspect = root.require('./mafia/commands/inspect')

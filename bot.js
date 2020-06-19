@@ -2,6 +2,7 @@
 // note: each command is labeled at the top as generalized, [game.type]-specific, or debugging
     // todo: refactor game-specific commands into a commands/[game.type] folder
 // todo: host on vercel https://youtu.be/1Bfb8pSvoQo https://u.nu/3zs6q https://u.nu/ooxyy
+// todo: use https://github.com/entwicklerstube/babel-plugin-root-import for absolute import paths
 // idea: give discord-deception ?botwipe for nongame channels
 
 // exports
@@ -17,28 +18,16 @@ module.exports = {
 
     maxPlayers: {mafia: 20},
 
-    createBotchat(userSet)
-    {
-        let bcusers = new Map()
-        userSet.forEach(user => bcusers.set(user.id, user))
-        let bcusersStr = ''
-        bcusers.forEach(user => {
-            bcusersStr += user.username + '\n'
-            botchats.set(user, bcusers)
-        })
-        return [bcusers, bcusersStr]
-    },
-
     generateLobbyMessage(game)
     {
-        jobEmojis = {
+        const jobEmojis = {
             mafia(playerCount)
             {
                 let jobHat = []
-                for (j = 0; j < Math.ceil(game.players.size * .226); j++)
+                for (let j = 0; j < Math.ceil(game.players.size * .226); j++)
                     jobHat.push('m')
                 if (game.players.size > 6)
-                    for (i = 0; i < Math.ceil(game.players.size * .051); i++)
+                    for (let i = 0; i < Math.ceil(game.players.size * .051); i++)
                         jobHat.push('c')
                 while (jobHat.length < game.players.size)
                     jobHat.push('i')
@@ -109,7 +98,7 @@ module.exports = {
     },
 
     unreact: async (message, emojiStr) => {
-        for ([k,v] of message.reactions.cache)
+        for (const [k,v] of message.reactions.cache)
         {
             if (k === emojiStr && v.me)
             {

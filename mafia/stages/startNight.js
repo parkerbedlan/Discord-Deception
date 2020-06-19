@@ -1,6 +1,6 @@
 // mafia-specific
 const {Permissions, MessageEmbed} = require('discord.js')
-const {createBotchat} = require.main.require('./bot.js')
+const createBotchat = require.main.require('./general/resources/createBotchat')
 
 module.exports = {
     execute: async game => {
