@@ -11,7 +11,7 @@ module.exports = msg => {
     if (!voteSearch || !game.suspects.has(voteSearch[1].toLowerCase()))
         return msg.reply(`You've got to include the letter of the suspect you're voting for, like "?vote z". The list of possible suspects is above.`)
     else if (game.votes.has(msg.author))
-        return msg.reply(`You can only vote once, and you've already voted for ${games.votes.get(msg.author)}`)
+        return msg.reply(`You can only vote once, and you've already voted for ${game.votes.get(msg.author)}`)
     else
     {
         // console.log(game.suspects)

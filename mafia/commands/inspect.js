@@ -13,7 +13,7 @@ module.exports = msg => {
     if (!suspectUser)
     {
         bcusers.forEach(user => {
-            user.send(`command failed: "${victimUsername}" is not a username of a remaining player.`)
+            user.send(`command failed: "${suspectUsername}" is not a username of a remaining player.`)
         })
         return
     }

@@ -1,3 +1,4 @@
+const {botchats} = require('../../bot')
 module.exports = function createBotchat(userSet)
 {
     let bcusers = new Map()

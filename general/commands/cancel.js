@@ -8,7 +8,7 @@ module.exports = msg => {
     {
         return msg.reply("There's no started game to cancel! Use ?help to see what games you can choose from.")
     }
-    else if (game.status == 'playing')
+    else if (game.status != 'lobby')
     {
         return msg.reply("I'm sorry Dave, I'm afraid I can't do that. This game is too important for me to allow you to jeopardize it.")
     }

@@ -88,18 +88,28 @@ function mafiaNight(game)
 function copNight(game)
 {
     // todo: alternate rule - cop spooned a random unknown living mafia identity like in the org.ntnu.no/mafia rules
-    if (game.jobSets.cop.size)
+    const cops = game.jobSets.cop
+    let copAlive = false
+    for (const cop of cops)
     {
-        game.generalTextChannel.send(`The cop${game.jobSets.cop.size == 1 ? ' is' : 's are'} invtestigating a suspect...`)
+        if (game.alive.has(cop))
+        {
+            copAlive = true
+            break
+        }
+    }
+    if (copAlive)
+    {
+        game.generalTextChannel.send(`The cop${game.jobSets.cop.size == 1 ? ' is' : 's are'} investigating a suspect...`)
         let copBC, copBCstr;
         [copBC, copBCstr] = createBotchat(game.jobSets.cop)
 
         copBC.forEach(user => {
             if(copBC.size > 1)
-                user.send('This is a chat where the cops can speak freely and must decide who to kill. These are the remaining cops:\n'+mafiaBCstr)
+                user.send('This is a chat where the cops can speak freely and must decide who to kill. These are the remaining cops:\n'+copBCstr)
             user.send(new MessageEmbed()
                 .setColor('#8c9eff')
-                .setTitle(`The first use of "?inspect **suspect_username_here**" will reveal their identity to ${mafiaBC.size == 1 ? 'you, so think' : 'all the cops, so discuss'} carefully before using it!`)
+                .setTitle(`The first use of "?inspect **suspect_username_here**" will reveal their identity to ${copBC.size == 1 ? 'you, so think' : 'all the cops, so discuss'} carefully before using it!`)
                 .setDescription(`${game.remainingPlayers}`)
             )
         })
