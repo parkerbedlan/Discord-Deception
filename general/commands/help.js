@@ -7,9 +7,9 @@ const commandList = new MessageEmbed()
     .addFields({
         name: "**Commands:**",
         value: "```diff\n" + 
-            "?help: This thing pops up\n" +
+            "?help: have helping hand\n" +
             "?ping: Pong!\n" +
-            "?mafia: [Under construction]" +
+            "?mafia: masterful mad menaces mess my mind\n" +
             "```"
     })
 

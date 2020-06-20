@@ -8,3 +8,4 @@ Developing da dopest dastardly discord deception debacle
 # Command List
 - ?help: Lists the Commands of the bot
 - ?ping: Pings the bot
+- ?mafia: A tried and true classic
