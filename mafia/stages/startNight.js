@@ -98,7 +98,17 @@ function copNight(game)
         return
     }
 
-    if (game.jobSets.cop.size)  //there is currently a living cop in the game
+    let mafiaJustKilledLastCop = true
+    for (const cop of game.jobSets.cop)
+    {
+        if (game.nightKill != cop)
+        {
+            mafiaJustKilledLastCop = false
+            break
+        }
+    }
+
+    if (game.jobSets.cop.size && !mafiaJustKilledLastCop)  //there is currently a living cop in the game
     {
         let copBC, copBCstr;
         [copBC, copBCstr] = createBotchat(game.jobSets.cop)
