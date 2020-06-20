@@ -56,10 +56,10 @@ module.exports = async msg => {
         }
     })
 
+    // todo: noooope
     game.jobSets = {
         mafia: new Set(),
-        innocent: new Set(),
-        cop: new Set()
+        innocent: new Set()
     }
     game.playerToJob = new Map()
     game.playerToDeadJob = new Map()
@@ -73,8 +73,11 @@ module.exports = async msg => {
     for (let j = 0; j < Math.ceil(game.players.size * .226); j++)
         jobHat.push('m')
     if (game.players.size > 6)
+    {
+        game.jobSets.cop = new Set()
         for (let i = 0; i < Math.ceil(game.players.size * .051); i++)
             jobHat.push('c')
+    }
     while (jobHat.length < game.players.size)
         jobHat.push('i')
 

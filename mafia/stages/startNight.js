@@ -85,25 +85,23 @@ function mafiaNight(game)
     }
 }
 
+// idea: alternate rule - cop spooned a random unknown living mafia identity like in the org.ntnu.no/mafia rules
 function copNight(game)
 {
-    // todo: alternate rule - cop spooned a random unknown living mafia identity like in the org.ntnu.no/mafia rules
-    const cops = game.jobSets.cop
-    let copAlive = false
-    for (const cop of cops)
+    if (game.jobSets.cop)   //there has ever been a cop in the game
     {
-        if (game.alive.has(cop))
-        {
-            copAlive = true
-            break
-        }
+        game.generalTextChannel.send(`The cops are investigating a suspect...`)
     }
-    if (copAlive)
+    else
     {
-        game.generalTextChannel.send(`The cop${game.jobSets.cop.size == 1 ? ' is' : 's are'} investigating a suspect...`)
+        game.emit('startMorning')
+        return
+    }
+
+    if (game.jobSets.cop.size)  //there is currently a living cop in the game
+    {
         let copBC, copBCstr;
         [copBC, copBCstr] = createBotchat(game.jobSets.cop)
-
         copBC.forEach(user => {
             if(copBC.size > 1)
                 user.send('This is a chat where the cops can speak freely and must decide who to kill. These are the remaining cops:\n'+copBCstr)
@@ -116,6 +114,7 @@ function copNight(game)
     }
     else
     {
-        game.emit('startMorning')
+        // wait random time between 8 and 16 seconds to make the mafia think the cop is alive
+        setTimeout(()=>{game.emit('startMorning')}, (8+Math.random()*8)*1000)
     }
 }

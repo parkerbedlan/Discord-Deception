@@ -89,7 +89,7 @@ module.exports = (client,msg) => {
     }
     else if(msg.content.toLowerCase() == '??end')   //only for debugging
     {
-        if(runningGames[msg.guild] && runningGames[msg.guild].status == 'playing')
+        if(runningGames[msg.guild] && runningGames[msg.guild].status != 'lobby')
             end(runningGames[msg.guild])
         else
             msg.reply("That debugging command can only be used during a running game.")

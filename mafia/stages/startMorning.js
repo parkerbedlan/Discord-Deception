@@ -39,6 +39,7 @@ module.exports = {
             game.guild.member(game.nightKill).roles.remove(game.playersRole)
             game.guild.member(game.nightKill).roles.add(game.deadRole)
             game.playerToDeadJob.set(game.nightKill, 'unknown')
+            game.jobSets.cop.delete(game.nightKill)
             game.nightKill = null
 
             if (winnerCheck(game))
@@ -251,6 +252,7 @@ async function startHanging(game)
     game.guild.member(game.hangKill).roles.remove(game.playersRole)
     game.guild.member(game.hangKill).roles.add(game.deadRole)
     game.playerToDeadJob.set(game.hangKill, game.playerToJob.get(game.hangKill))
+    game.jobSets.cop.delete(game.hangKill)
     game.hangKill = null
 
     if (winnerCheck(game))
