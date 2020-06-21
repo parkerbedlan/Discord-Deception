@@ -8,7 +8,7 @@ h1 {
   }
   
 p {
-    color: green;
-    font-family: verdana;
+    color: red;
+    font-family: 'Times New Roman', Times, serif;
     font-size: 20px;
   }
