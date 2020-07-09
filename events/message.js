@@ -1,7 +1,7 @@
 // when someone sends a message that the bot can see
 
 const root = require.main
-const { runningGames, botchats } = root.require('./bot')
+const { runningGames, botchats, getGeneralVoiceChannel } = root.require('./bot')
 const lobby = root.require('./general/commands/lobby')
 const readyCommand = root.require('./general/commands/readyCommand')
 const cancel = root.require('./general/commands/cancel')
@@ -19,29 +19,27 @@ const cleanup = root.require('./general/commands/cleanup')
 module.exports = (client, msg) => {
   if (msg.author.bot) return
 
-  if (!msg.guild && botchats.has(msg.author)) {
-    if (msg.cleanContent.toLowerCase().startsWith('?kill')) {
-      if (kill(msg) != 'only mafia can use ?kill') return
-    } else if (msg.cleanContent.toLowerCase().startsWith('?inspect')) {
-      if (inspect(msg) != 'only cops can use ?inspect') return
-    }
-    const toSend = `**${msg.author.username}:**  ${msg.content}`
-    const bcusers = botchats.get(msg.author)
-    bcusers.forEach(user => {
-      if (user != msg.author) user.send(toSend)
-    })
-    return
-  } else if (!msg.guild) {
+  if (!msg.guild) {
     if (msg.cleanContent.toLowerCase().startsWith('?accuse')) {
       accuse(msg)
       return
     } else if (msg.cleanContent.toLowerCase().startsWith('?vote')) {
       vote(msg)
       return
+    } else if (msg.cleanContent.toLowerCase().startsWith('?kill')) {
+      if (kill(msg) != 'only mafia can use ?kill') return
+    } else if (msg.cleanContent.toLowerCase().startsWith('?inspect')) {
+      if (inspect(msg) != 'only cops can use ?inspect') return
     }
   }
-
-  // if(runningGames[msg.guild] && runningGames[msg.guild].muted && msg.channel == runningGames[msg.guild].generalTextChannel) msg.delete()
+  if (!msg.guild && botchats.has(msg.author)) {
+    const toSend = `**${msg.author.username}:**  ${msg.content}`
+    const bcusers = botchats.get(msg.author)
+    bcusers.forEach(user => {
+      if (user != msg.author) user.send(toSend)
+    })
+    return
+  }
 
   if (
     !msg.content.startsWith('?') ||
@@ -76,12 +74,11 @@ module.exports = (client, msg) => {
   } else if (msg.content.toLowerCase() == '??clear') {
     //only for debugging
     clearPast(msg)
-  }
-  //   else if (/^[?](kill|inspect|accuse|vote)/i.test(msg.cleanContent)) {
-  //     msg.delete()
-  //     msg.reply('That command only works when you DM it to me.')
-  //   }
-  else if (msg.content.replace(/[?]/g, '').substring(0, 1) != ' ') {
+  } else if (msg.content.toLowerCase() == '??unmute') {
+    msg.guild.members.cache.forEach(member =>
+      member.edit({ mute: false }).catch(() => {})
+    )
+  } else if (msg.content.replace(/[?]/g, '').substring(0, 1) != ' ') {
     msg.reply(
       'That\'s not a command. To see the full list of commands, type "?help".'
     )

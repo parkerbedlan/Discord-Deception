@@ -1,6 +1,5 @@
 const { runningGames } = require('../bot')
 module.exports = (client, messageReaction, user) => {
-  // console.log(JSON.stringify(messageReaction.message, null, 2))
   if (messageReaction.message.guildID !== undefined) return
   if (messageReaction.emoji.name !== '✋') return
   if (user.bot) return

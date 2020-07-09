@@ -4,7 +4,7 @@
 // todo: make it less honor systemy
 // todo: make list of all Game properties (some documentation), separating universal Game properties and Mafia Game properties
 
-const { Permissions, MessageEmbed } = require('discord.js')
+const { Permissions, MessageEmbed, MessageFlags } = require('discord.js')
 const root = require.main
 const { runningGames, shuffleArray, botchats } = root.require('./bot.js')
 const { execute: startNight, mafiaNight, copNight } = root.require(
@@ -25,11 +25,11 @@ const shortToFull = {
 }
 
 module.exports = async msg => {
-  msg.channel.send(
+  await msg.channel.send(
     'Let\'s play some Mafia! **Connect to the voice channel "Town Hall"**. You\'ll learn your secret identity once everyone has connected...'
   )
 
-  const game = await runningGames[msg.guild]
+  const game = runningGames[msg.guild]
   if (game.status == 'playing') return
   game.status = 'playing'
   game.players.delete(msg.client.user)
@@ -41,8 +41,12 @@ module.exports = async msg => {
   )
 
   game.numToPlayer = new Map()
+  game.playerToNum = new Map()
   let i = 1
-  game.players.forEach(player => game.numToPlayer.set(i++, player))
+  game.players.forEach(player => {
+    game.playerToNum.set(player, i)
+    game.numToPlayer.set(i++, player)
+  })
   for (const [k, v] of game.numToPlayer) {
     console.log(`${k}: ${v.username}`)
   }
@@ -67,46 +71,40 @@ module.exports = async msg => {
     },
   })
 
-  // todo: noooope
-  game.jobSets = {
+  game.identitySets = {
     mafia: new Set(),
     innocent: new Set(),
   }
-  game.playerToJob = new Map()
-  game.playerToDeadJob = new Map()
+  game.playerToIdentity = new Map()
+  game.playerToDeadIdentity = new Map()
   game.dead = new Set()
   game.alive = new Set()
   game.players.forEach(player => {
     game.alive.add(player)
   })
 
-  let jobHat = []
+  let identityHat = []
   for (let j = 0; j < Math.ceil(game.players.size * 0.226); j++)
-    jobHat.push('m')
+    identityHat.push('m')
   if (game.players.size > 6) {
-    game.jobSets.cop = new Set()
+    game.identitySets.cop = new Set()
     for (let i = 0; i < Math.ceil(game.players.size * 0.051); i++)
-      jobHat.push('c')
+      identityHat.push('c')
   }
-  while (jobHat.length < game.players.size) jobHat.push('i')
+  while (identityHat.length < game.players.size) identityHat.push('i')
 
-  jobHat = shuffleArray(jobHat)
-  console.log(jobHat)
-  // todo: number players too
+  identityHat = shuffleArray(identityHat)
+  console.log(identityHat)
+
   game.players.forEach(async player => {
     // give public 'Players' role
     const member = await game.guild.member(player)
     member.roles.add(game.playersRole)
-    // pull their secret job from a hat
-    const job = shortToFull[jobHat.pop()]
-    console.log(`${player.username}: ${job}`)
-    game.playerToJob.set(player, job)
-    game.jobSets[job].add(player)
-    // console.log(`DMing ${player.username}...`)
-    // player.send(
-    //   `Your secret identity is: ||**${job}**||. Shhh, don't tell anyone...`
-    // )
-    // console.log(`just DMed ${player.username}`)
+    // pull their secret identity from a hat
+    const identity = shortToFull[identityHat.pop()]
+    console.log(`${player.username}: ${identity}`)
+    game.playerToIdentity.set(player, identity)
+    game.identitySets[identity].add(player)
   })
 
   game.categoryChannel = await game.guild.channels.create('Mafia Game', {
@@ -121,14 +119,14 @@ module.exports = async msg => {
       {
         id: game.playersRole,
         type: 'role',
-        allow: new Permissions(3607616),
-        deny: new Permissions(2143876031),
+        allow: new Permissions(37162048),
+        deny: new Permissions(2109796799),
       },
       {
         id: game.deadRole,
         type: 'role',
-        allow: new Permissions(1049600),
-        deny: new Permissions(2146434047),
+        allow: new Permissions(1115136),
+        deny: new Permissions(2145843711),
       },
     ],
   })
@@ -142,9 +140,10 @@ module.exports = async msg => {
   game.on('revealIdentities', async () => {
     await Promise.all(
       Array.from(game.players).map(player => {
-        const job = game.playerToJob.get(player)
         return player.send(
-          `Your secret identity is: ||**${job}**||. Shhh, don't tell anyone...`
+          `Your secret identity is: ||**${game.playerToIdentity.get(
+            player
+          )}**||. Shhh, don't tell anyone...`
         )
       })
     )
@@ -159,10 +158,8 @@ module.exports = async msg => {
   })
 
   game.on('startNight', () => {
-    // startNight(game)
-    return Promise.all(
-      Array.from(game.players).map(player => player.send('Night time'))
-    )
+    startNight(game)
+    // game.messagePlayers('Night time')
   })
   game.on('mafiaNight', () => {
     mafiaNight(game)
@@ -185,4 +182,13 @@ module.exports = async msg => {
   game.on('endGame', () => {
     endGame(game)
   })
+
+  await Promise.all(
+    Array.from(game.players).map(async player => {
+      console.log('attempting to move', player.tag)
+      return game.guild
+        .member(player)
+        .edit({ channel: game.generalVoiceChannel })
+    })
+  ).catch(() => 'failed')
 }

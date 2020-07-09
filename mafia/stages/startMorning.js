@@ -1,9 +1,6 @@
 // mafia-specific
-const {
-  Permissions,
-  MessageEmbed,
-  PartialGroupDMChannel,
-} = require('discord.js')
+const { Permissions, MessageEmbed } = require('discord.js')
+const createBotchat = require('../../general/resources/createBotchat')
 
 module.exports = {
   execute: async game => {
@@ -12,41 +9,35 @@ module.exports = {
 
     // undo night permissions
     game.muted = false
-    game.generalVoiceChannel = await game.generalVoiceChannel
-      .clone()
-      .catch(() => {})
-    game.generalTextChannel.overwritePermissions([
-      {
-        id: game.guild.roles.cache.find(r => r.name == '@everyone'),
-        type: 'role',
-        deny: new Permissions(2147483647),
-      },
-      {
-        id: game.playersRole,
-        type: 'role',
-        allow: new Permissions(3607616),
-        deny: new Permissions(2143876031), //back to normal
-      },
-      {
-        id: game.deadRole,
-        type: 'role',
-        allow: new Permissions(1049600),
-        deny: new Permissions(2146434047),
-      },
-    ])
+    game.setPermissions('morning')
+
+    await Promise.all(
+      Array.from(game.alive).map(player => {
+        console.log('unmuting', player.tag)
+        return game.guild.member(player).edit({ mute: false })
+      })
+    ).catch(() => {
+      console.log('failed')
+    })
 
     // announce night kill and check for winner
-    game.generalTextChannel.send(
+    game.messagePlayers(
       `The morning has come, and it's a beautiful day outside. Birds are singing, flowers are blooming...`
     )
     if (game.nightKill) {
-      game.generalTextChannel.send(`and ${game.nightKill} is dead.`)
+      game.messagePlayers(`and **${game.nightKill} is dead.**`)
       game.alive.delete(game.nightKill)
       game.dead.add(game.nightKill)
       game.guild.member(game.nightKill).roles.remove(game.playersRole)
       game.guild.member(game.nightKill).roles.add(game.deadRole)
-      game.playerToDeadJob.set(game.nightKill, 'unknown')
-      if (game.jobSets.cop) game.jobSets.cop.delete(game.nightKill)
+      game.playerToDeadIdentity.set(game.nightKill, 'unknown')
+      if (game.identitySets.cop) game.identitySets.cop.delete(game.nightKill)
+      game.guild
+        .member(game.nightKill)
+        .edit({ mute: true })
+        .catch(() => {
+          console.log('failed to mute nightkill')
+        })
       game.nightKill = null
 
       if (winnerCheck(game)) {
@@ -55,11 +46,11 @@ module.exports = {
         return
       } else console.log('no winner yet')
     } else {
-      // game.generalTextChannel.send("and the Mafia were too busy playing poker with the family to kill anyone last night.")
+      // game.messagePlayers("and the Mafia were too busy playing poker with the family to kill anyone last night.")
     }
 
     // trial
-    game.generalTextChannel.send('Anyways, time to hang someone!')
+    game.messagePlayers('Anyways, time to hang someone!')
 
     game.emit('startAccusing')
   },
@@ -69,6 +60,8 @@ module.exports = {
 }
 
 async function startAccusing(game) {
+  createBotchat(game.alive)
+
   let aliveStr = ''
   let deadStr = ''
   for (const [num, player] of game.numToPlayer) {
@@ -76,7 +69,9 @@ async function startAccusing(game) {
     paddedNum = paddedNum.substring(paddedNum.length - 2)
     if (game.alive.has(player)) aliveStr += `${paddedNum}: ${player.username}\n`
     else if (game.dead.has(player))
-      deadStr += `${player.username} (${game.playerToDeadJob.get(player)})\n`
+      deadStr += `${player.username} (${game.playerToDeadIdentity.get(
+        player
+      )})\n`
     else console.log(player + ' is neither dead nor alive??')
   }
   if (!deadStr) deadStr = 'None... yet :smiling_imp:'
@@ -87,48 +82,30 @@ async function startAccusing(game) {
       { name: 'Dead', value: deadStr },
       { name: 'Alive', value: aliveStr }
     )
-  game.allPlayersMsg = await game.generalTextChannel.send(
-    game.allPlayersMsgEmbed
+  game.allPlayersMsgs = []
+  await Promise.all(
+    Array.from(game.players).map(async player => {
+      const message = await player.send(game.allPlayersMsgEmbed)
+      game.allPlayersMsgs.push(message)
+      return message
+    })
   )
-  game.allPlayersMsg.pin().catch(console.error)
 
   // todo: wait some time to force discussion before allowing ?nominate or ?vote
-
-  game.allPlayersMsg
-    .unpin()
-    .catch(console.error)
-    .then(async () => {
-      game.allPlayersMsg
-        .delete()
-        .then(async () => {
-          game.allPlayersMsg = await game.generalTextChannel.send(
-            game.allPlayersMsgEmbed
-          )
-          game.allPlayersMsg.pin().catch(console.error)
-          game.generalTextChannel.send(
-            'You can now DM me an accusation using ?accuse and their number above. Everyone must submit an accusation before we move onto voting.'
-          )
-        })
-        .catch(console.error)
-    })
-    .catch(console.error)
   game.votes = new Map() // voter -> suspect
   game.voteTally = new Map() // suspect -> set of voters
   game.status = 'accusing'
-  // idea: x accusations left
-  game.alive.forEach(player => {
-    player.send(game.allPlayersMsgEmbed)
-    player.send(
-      `Once you've decided who to accuse, DM me here \"?accuse 0\" (replace 0 with their number)\nFeel free to discuss in <#${game.generalTextChannel.id}> until you're ready.`
-    )
-  })
+
+  game.messageAlive(
+    `Once you've decided who to accuse, DM me here \"?accuse 0\" (replace 0 with their number)\nFeel free to discuss until you're ready.`
+  )
 }
 
 async function startVoting(game) {
   game.status = 'playing'
 
   if (!game.revote) {
-    game.generalTextChannel.send(
+    game.messagePlayers(
       'The last accusation has been received. Here are the results:'
     )
     game.voteTally = new Map(
@@ -143,12 +120,12 @@ async function startVoting(game) {
           .join(', ') +
         ']'
       }\n`
-    game.accuseMsg = await game.generalTextChannel.send(
-      new MessageEmbed()
-        .setColor('#8c9eff')
-        .setTitle('Accusations')
-        .setDescription(accuseDisplay)
-    )
+    game.accuseMsgEmbed = new MessageEmbed()
+      .setColor('#8c9eff')
+      .setTitle('Accusations')
+      .setDescription(accuseDisplay)
+
+    game.messagePlayers(game.accuseMsgEmbed)
 
     const amts = game.voteTally.values()
     const amt1 = amts.next().value.size
@@ -192,27 +169,21 @@ async function startVoting(game) {
     }
   }
 
-  game.generalTextChannel.send(
-    'Here are the final suspects to vote on killing:'
-  )
+  game.messagePlayers('Here are the final suspects to vote on killing:')
+
   game.suspectsMsgEmbed = new MessageEmbed()
     .setColor('#8c9eff')
     .setTitle('Suspects to vote on')
     .setDescription(game.suspectsDisplay)
-  game.suspectsMsg = await game.generalTextChannel.send(game.suspectsMsgEmbed)
+  game.messagePlayers(game.suspectsMsgEmbed)
+
+  game.messageAlive(
+    `Once you've decided who to vote for, DM me here \"?vote z\" (replace z with their letter)\nFeel free to discuss until you're ready.`
+  )
 
   game.votes = new Map()
   game.voteTally = new Map()
   game.status = 'voting'
-  game.generalTextChannel.send(
-    "Whenever you're ready, DM me your vote using ?vote and their letter above. Everyone must vote, including the suspects."
-  )
-  game.alive.forEach(player => {
-    player.send(game.suspectsMsgEmbed)
-    player.send(
-      `Once you've decided who to vote for, DM me here \"?vote z\" (replace z with their letter)\nFeel free to discuss in <#${game.generalTextChannel.id}> until you're ready.`
-    )
-  })
 }
 
 async function startHanging(game) {
@@ -223,7 +194,7 @@ async function startHanging(game) {
       [...game.voteTally.entries()].sort((a, b) => b[1].size - a[1].size)
     )
 
-    game.generalTextChannel.send('The results are in: ')
+    game.messagePlayers('The results are in: ')
     let voteDisplay = ''
     for (const [player, voters] of game.voteTally)
       voteDisplay += `${voters.size} votes: ${player.username}\n\t${
@@ -233,14 +204,14 @@ async function startHanging(game) {
           .join(', ') +
         ']'
       }\n`
-    game.voteMsg = await game.generalTextChannel.send(
+    game.messagePlayers(
       new MessageEmbed()
         .setColor('#8c9eff')
         .setTitle('Voting Results')
         .setDescription(voteDisplay)
     )
   } else {
-    game.generalTextChannel.send(
+    game.messagePlayers(
       "Welp, only one person got accused, so I guess it's kind of implied what happens next."
     )
   }
@@ -266,13 +237,13 @@ async function startHanging(game) {
 
       if (!game.revote) {
         game.revote = true
-        game.generalTextChannel.send(
+        game.messagePlayers(
           "Welp, it's a tie. The town will get only one chance to revote, and if it's a tie again, nobody will be hanged and we will go straight to night."
         )
         game.emit('startVoting')
         return
       } else {
-        game.generalTextChannel.send(
+        game.messagePlayers(
           'The town was unable to agree on who to kill, and the sun set before they were able to decide. Nobody was killed today.'
         )
         game.emit('startNight')
@@ -282,9 +253,11 @@ async function startHanging(game) {
   }
 
   game.hangKill = game.voteTally.keys().next().value
-  game.generalTextChannel.send(`lol get rekt ${game.hangKill.username}, u ded`)
-  game.generalTextChannel.send(
-    `btw their secret identity was ${game.playerToJob.get(game.hangKill)}`
+  game.messagePlayers(`lol get rekt **${game.hangKill.username}, u ded**`)
+  game.messagePlayers(
+    `btw their secret identity was **${game.playerToIdentity.get(
+      game.hangKill
+    )}**`
   )
 
   // kill them
@@ -292,8 +265,17 @@ async function startHanging(game) {
   game.dead.add(game.hangKill)
   game.guild.member(game.hangKill).roles.remove(game.playersRole)
   game.guild.member(game.hangKill).roles.add(game.deadRole)
-  game.playerToDeadJob.set(game.hangKill, game.playerToJob.get(game.hangKill))
-  if (game.jobSets.cop) game.jobSets.cop.delete(game.hangKill)
+  game.playerToDeadIdentity.set(
+    game.hangKill,
+    game.playerToIdentity.get(game.hangKill)
+  )
+  if (game.identitySets.cop) game.identitySets.cop.delete(game.hangKill)
+  game.guild
+    .member(game.hangKill)
+    .edit({ mute: true })
+    .catch(() => {
+      console.log('failed to mute hangkill')
+    })
   game.hangKill = null
 
   if (winnerCheck(game)) {
@@ -303,16 +285,14 @@ async function startHanging(game) {
   } else console.log('no winner yet')
 
   // todo: add some time to be shocked and discuss
-  game.generalTextChannel.send(
-    'All that voting has made everyone really sleepy.'
-  )
+  game.messagePlayers('All that voting has made everyone really sleepy.')
   game.emit('startNight')
 }
 
 function winnerCheck(game) {
   console.log('checking for winner')
   let mafiaAllDead = true
-  for (const player of game.jobSets.mafia) {
+  for (const player of game.identitySets.mafia) {
     if (game.alive.has(player)) {
       mafiaAllDead = false
       break
@@ -324,7 +304,7 @@ function winnerCheck(game) {
   }
 
   let innoAllDead = true
-  for (const player of game.jobSets.innocent) {
+  for (const player of game.identitySets.innocent) {
     if (game.alive.has(player)) {
       innoAllDead = false
       break

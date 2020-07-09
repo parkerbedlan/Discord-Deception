@@ -41,7 +41,7 @@ module.exports = async msg => {
   const categoryChannel = msg.guild.channels.cache.find(
     ch => ch.name == 'Mafia Game'
   )
-  // console.log(msg.guild.channels.cache)
+
   if (categoryChannel) {
     msg.guild.channels.cache
       .filter(ch => ch.parent == categoryChannel)
