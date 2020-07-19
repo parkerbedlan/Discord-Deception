@@ -49,5 +49,5 @@ module.exports = async msg => {
     categoryChannel.delete()
   }
 
-  console.log('The past never happened.')
+  console.log('It will shock you how much it never happened.')
 }

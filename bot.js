@@ -17,20 +17,20 @@ module.exports = {
 
   botchats,
 
-  minPlayers: { mafia: 1 },
+  minPlayers: { mafia: 5, coup: 1 },
 
-  maxPlayers: { mafia: 20 },
+  maxPlayers: { mafia: 30, coup: 30 },
 
   generateLobbyMessage(game) {
     const identityEmojis = {
       mafia(playerCount) {
         let identityHat = []
-        for (let j = 0; j < Math.ceil(game.players.size * 0.226); j++)
+        for (let j = 0; j < Math.ceil(playerCount * 0.226); j++)
           identityHat.push('m')
-        if (game.players.size > 6)
-          for (let i = 0; i < Math.ceil(game.players.size * 0.051); i++)
+        if (playerCount > 6)
+          for (let i = 0; i < Math.ceil(playerCount * 0.051); i++)
             identityHat.push('c')
-        while (identityHat.length < game.players.size) identityHat.push('i')
+        while (identityHat.length < playerCount) identityHat.push('i')
 
         const identityToEmoji = {
           m: ':smiling_imp:',
@@ -41,23 +41,11 @@ module.exports = {
         const output = identityHat
           .map(identity => identityToEmoji[identity])
           .join(' ')
-        return output ? output : 'What is a game if there is nobody to play it?'
+        return output
       },
 
-      secretHitler(playerCount) {
-        return [
-          'What is a game if there is nobody to play it?',
-          'We need more players to start the game.',
-          'We need more players to start the game.',
-          'We need more players to start the game.',
-          'We need more players to start the game.',
-          ':japanese_ogre: :guard: :angel: :angel: :angel:',
-          ':japanese_ogre: :guard: :angel: :angel: :angel: :angel:',
-          ':japanese_ogre: :guard: :guard: :angel: :angel: :angel: :angel:',
-          ':japanese_ogre: :guard: :guard: :angel: :angel: :angel: :angel: :angel:',
-          ':japanese_ogre: :guard: :guard: :guard: :angel: :angel: :angel: :angel: :angel:',
-          ':japanese_ogre: :guard: :guard: :guard: :angel: :angel: :angel: :angel: :angel: :angel:',
-        ][playerCount]
+      coup(playerCount) {
+        return Array(playerCount).fill('❔').join(' ')
       },
     }
     return new Discord.MessageEmbed()
@@ -66,7 +54,9 @@ module.exports = {
       .setThumbnail('https://i.imgur.com/IchybTu.png')
       .addFields({
         name: `**Amount of players: ${game.players.size}**`,
-        value: identityEmojis.mafia(game.players.size),
+        value:
+          identityEmojis[game.type](game.players.size) ||
+          'What is a game if there is nobody to play it?',
       })
   },
 

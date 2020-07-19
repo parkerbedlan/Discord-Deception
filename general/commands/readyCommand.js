@@ -4,6 +4,7 @@
 const root = require.main
 const { runningGames, minPlayers } = root.require('./bot.js')
 const startMafia = root.require('./mafia/startMafia.js')
+const startCoup = root.require('./coup/startCoup.js')
 
 module.exports = msg => {
   const game = runningGames[msg.guild]
@@ -28,5 +29,6 @@ module.exports = msg => {
     game.lobbyMsg.delete()
     game.lobbyMsg = null
     if (game.type == 'mafia') startMafia(msg)
+    else if (game.type == 'coup') startCoup(msg)
   }
 }

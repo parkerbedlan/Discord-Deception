@@ -19,6 +19,9 @@ const cleanup = root.require('./general/commands/cleanup')
 module.exports = (client, msg) => {
   if (msg.author.bot) return
 
+  // console.log(msg.content)
+  // msg.react('%F0%9F%8F%B4%E2%80%8D%E2%98%A0%EF%B8%8F')
+
   if (!msg.guild) {
     if (msg.cleanContent.toLowerCase().startsWith('?accuse')) {
       accuse(msg)
@@ -56,6 +59,8 @@ module.exports = (client, msg) => {
     help(msg)
   } else if (msg.content.toLowerCase().startsWith('?mafia')) {
     lobby(msg, 'mafia')
+  } else if (msg.content.toLowerCase().startsWith('?coup')) {
+    lobby(msg, 'coup')
   } else if (msg.content.toLowerCase().startsWith('?ready')) {
     readyCommand(msg)
   } else if (msg.content.toLowerCase().startsWith('?cancel')) {

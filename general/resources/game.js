@@ -2,7 +2,7 @@ const { botchats } = require('../../bot')
 const { Permissions } = require('discord.js')
 
 module.exports = function Game(type, host, guild, status = 'lobby') {
-  if (!new Set(['mafia']).has(type)) {
+  if (!new Set(['mafia', 'coup']).has(type)) {
     throw "Oi bruv that game doesn't even exist yet."
   }
   if (!new Set(['lobby', 'playing']).has(status)) {

@@ -1,4 +1,4 @@
-// mafia-specific (todo: needs to be generalized!)
+// generalized (I think)
 
 // todo: rename lobby.js
 // todo: make emojis based on a function (convert kevin's identity generator into a bot.js function that can work with it)
@@ -19,7 +19,6 @@ const readyCommand = root.require('./general/commands/readyCommand')
 const cancel = root.require('./general/commands/cancel')
 const clearPast = root.require('./general/commands/clearPast')
 
-//this is the mafia1 branch, I guess
 module.exports = async (msg, type) => {
   // console.log(runningGames)
   if (!msg.guild) {
@@ -38,7 +37,7 @@ module.exports = async (msg, type) => {
   }
 
   await clearPast(msg)
-  runningGames[msg.guild] = new Game('mafia', msg.author, msg.guild)
+  runningGames[msg.guild] = new Game(type, msg.author, msg.guild)
   const game = runningGames[msg.guild]
 
   // gather players
@@ -61,7 +60,7 @@ module.exports = async (msg, type) => {
     if (u.equals(game.host)) await unreact(sUmsg, '✋')
     await sUmsg.edit(undefined, generateLobbyMessage(game))
 
-    if (game.players.size == maxPlayers.mafia) {
+    if (game.players.size == maxPlayers[type]) {
       collector
         .stop('max players reached')
         .then(readyCommand(msg))
