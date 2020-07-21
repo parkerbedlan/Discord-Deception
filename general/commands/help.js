@@ -8,8 +8,8 @@ const commandList = new MessageEmbed()
     name: '**Commands:**',
     value:
       '```diff\n' +
-      '?mafia: masked men mysteriously murder many mates midst meetings & marshal meddling\n\n' +
-      '?coup: [under construction]\n\n' +
+      '  ?mafia: masked men mysteriously murder many mates midst meetings & marshal meddling\n' +
+      '  ?coup: [under construction]\n' +
       '```',
   })
 

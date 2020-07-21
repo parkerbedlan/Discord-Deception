@@ -36,11 +36,21 @@ module.exports = async msg => {
     game.wallets.set(player, 2)
   }
 
-  game.history = ['Each player received 2 cards and 2 tokens.']
+  game.history = ['Each player received 2 cards and 2 tokens']
 
   game.currentPlayer = game.alive[Math.floor(Math.random() * game.alive.length)]
 
   game.currentAction = []
+
+  game.on('refreshMainMessages', () =>
+    require('./commands/refreshMainMessages')(game)
+  )
+
+  game.on('income', player => require('./commands/income')(game, player))
+
+  game.on('nextAction', () => require('./commands/nextAction')(game))
+
+  game.on('endGame', () => require('../general/commands/endGame')(game))
 
   game.mainMessages = new Map()
   await Promise.all(

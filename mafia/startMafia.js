@@ -16,7 +16,7 @@ const {
   startVoting,
   startHanging,
 } = root.require('./mafia/stages/startMorning')
-const endGame = root.require('./mafia/stages/endGame')
+const endGame = root.require('./general/commands/endGame')
 
 const shortToFull = {
   m: 'mafia',

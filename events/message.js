@@ -12,15 +12,12 @@ const inspect = root.require('./mafia/commands/inspect')
 const accuse = root.require('./mafia/commands/accuse')
 const vote = root.require('./mafia/commands/vote')
 
-const end = root.require('./mafia/stages/endGame')
+const end = root.require('./general/commands/endGame')
 const clearPast = root.require('./general/commands/clearPast')
 const cleanup = root.require('./general/commands/cleanup')
 
 module.exports = (client, msg) => {
   if (msg.author.bot) return
-
-  // console.log(msg.content)
-  // msg.react('%F0%9F%8F%B4%E2%80%8D%E2%98%A0%EF%B8%8F')
 
   if (!msg.guild) {
     if (msg.cleanContent.toLowerCase().startsWith('?accuse')) {

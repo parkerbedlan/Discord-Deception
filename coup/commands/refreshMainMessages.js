@@ -1,4 +1,6 @@
-messageTemplates = {
+const message = require('../../events/message')
+
+const messageTemplates = {
   yourTurn: `**Your turn:**
 :dollar: income
 :money_with_wings: foreign aid (blocked by duke)
@@ -11,9 +13,13 @@ messageTemplates = {
 }
 
 module.exports = async game => {
+  const clearReactions = async player => {
+    const mainMessage = await game.mainMessages.get(player).delete()
+    game.mainMessages.set(player, await player.send(mainMessage.embeds[0]))
+  }
+
   await Promise.all(
     Array.from(game.mainMessages).map(async ([messagedPlayer, mainMessage]) => {
-      console.log('refreshing', messagedPlayer.username)
       return await mainMessage.edit(
         mainMessage.embeds[0].setDescription(
           `\`\`\`${Array.from(game.players)
@@ -40,7 +46,6 @@ module.exports = async game => {
       )
     })
   )
-  // await do reaction stuff
   if (!game.currentAction.length) {
     const mainMessage = game.mainMessages.get(game.currentPlayer)
     await mainMessage.react('💵')
