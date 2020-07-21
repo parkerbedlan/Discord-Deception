@@ -1,6 +1,7 @@
 // generalized
 
 const { getGeneralTextChannel } = require('../../bot')
+const cleanup = require('./cleanup')
 
 module.exports = async game => {
   game.status = 'ended'
@@ -22,7 +23,6 @@ module.exports = async game => {
 
   if (game.type === 'mafia') {
     game.setPermissions('end')
-
     await Promise.all(
       Array.from(game.players).map(player => {
         console.log('unmuting', player.tag)
@@ -31,9 +31,12 @@ module.exports = async game => {
     ).catch(() => {
       console.log('failed')
     })
+    getGeneralTextChannel(game.guild).send(
+      '(To delete the roles and channels the bot made for this game, use ?cleanup)'
+    )
+  } else if (game.type === 'coup') {
+    //getGeneralTextChannel(game.guild).send(`Quality game, ${game.guild.name}. **${winningTeam} wins!**`)
+    cleanup(game)
   }
-  getGeneralTextChannel(game.guild).send(
-    '(To delete the roles and channels the bot made for this game, use ?cleanup)'
-  )
   console.log('Game end.\n---')
 }

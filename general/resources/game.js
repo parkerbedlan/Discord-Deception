@@ -25,8 +25,8 @@ module.exports = function Game(type, host, guild, status = 'lobby') {
 
     this.handlers[eventName].push(handler)
   }
-  this.emit = (eventName, ...args) => {
-    for (const handler of this.handlers[eventName]) handler(...args)
+  this.emit = async (eventName, ...args) => {
+    for (const handler of this.handlers[eventName]) await handler(...args)
   }
 
   this.messagePlayers = async message => {

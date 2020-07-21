@@ -3,6 +3,15 @@
 const { runningGames, shuffleArray } = require('../bot')
 const { MessageEmbed } = require('discord.js')
 const refreshMainMessages = require('./commands/refreshMainMessages')
+const dispatch = require('./commands/dispatch')
+const income = require('./commands/income')
+const tax = require('./commands/tax')
+const nextAction = require('./commands/nextAction')
+const endGame = require('../general/commands/endGame')
+const allow = require('./commands/allow')
+const clearAllReactions = require('./commands/clearAllReactions')
+const challenge = require('./commands/challenge')
+
 module.exports = async msg => {
   const game = runningGames[msg.guild]
   game.status = 'playing'
@@ -23,34 +32,47 @@ module.exports = async msg => {
     .flat()
   game.deck = shuffleArray(game.deck)
 
-  game.hands = new Map() // player -> [[card, isFlipped], [card, isFlipped]]
+  game.hands = new Map()
   for (const player of game.players) {
     game.hands.set(player, [
-      [game.deck.pop(), false],
-      [game.deck.pop(), false],
+      { influence: game.deck.pop(), isFlipped: false },
+      { influence: game.deck.pop(), isFlipped: false },
     ])
   }
 
-  game.wallets = new Map() // player -> amount of money in wallet
+  game.wallets = new Map()
   for (const player of game.players) {
     game.wallets.set(player, 2)
   }
 
   game.history = ['Each player received 2 cards and 2 tokens']
 
-  game.currentPlayer = game.alive[Math.floor(Math.random() * game.alive.length)]
+  game.currentPlayerIndex = Math.floor(Math.random() * game.alive.length)
+  game.currentPlayer = game.alive[game.currentPlayerIndex]
 
   game.currentAction = []
 
-  game.on('refreshMainMessages', () =>
-    require('./commands/refreshMainMessages')(game)
-  )
+  //array should be actionStack and getCurrentAction() should be peek
 
-  game.on('income', player => require('./commands/income')(game, player))
+  game.allowers = new Set()
 
-  game.on('nextAction', () => require('./commands/nextAction')(game))
+  game.on('refreshMainMessages', async () => await refreshMainMessages(game))
 
-  game.on('endGame', () => require('../general/commands/endGame')(game))
+  game.on('income', player => income(game, player))
+
+  game.on('tax', player => tax(game, player))
+
+  game.on('nextAction', () => nextAction(game))
+
+  game.on('allow', player => allow(game, player))
+
+  game.on('challenge', player => challenge(game, player))
+
+  game.on('clearAllReactions', () => clearAllReactions(game))
+
+  game.on('dispatch', () => dispatch(game))
+
+  game.on('endGame', () => endGame(game))
 
   game.mainMessages = new Map()
   await Promise.all(
