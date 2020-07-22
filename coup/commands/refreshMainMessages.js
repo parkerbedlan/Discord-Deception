@@ -36,7 +36,7 @@ module.exports = async game => {
   }
 
   const situationMessage = player => {
-    const action = game.currentAction[game.currentAction.length - 1]
+    const action = game.getCurrentAction()
     if (!action) {
       return player === game.currentPlayer
         ? messageTemplates.yourTurn
@@ -52,9 +52,9 @@ module.exports = async game => {
 
   const addReactions = async message => {
     const player = message.channel.recipient
-    const action = game.currentAction[game.currentAction.length - 1]
+    const action = game.getCurrentAction()
     if (player === game.currentPlayer) {
-      if (!game.currentAction.length) {
+      if (!game.actionStack.length) {
         await message.react('💵').catch(() => {})
         await message.react('💸').catch(() => {})
         if (game.wallets.get(game.currentPlayer) >= 7)
@@ -97,9 +97,11 @@ module.exports = async game => {
                 .join(', ')
               return output
             })
-            .join('\n')}\`\`\`\nLast move:   \`${
-            game.history[game.history.length - 1]
-          }\`\n\n${situationMessage(messagedPlayer)}`
+            .join(
+              '\n'
+            )}\`\`\`\nLast action:   \`${game.getLastAction()}\`\n\n${situationMessage(
+            messagedPlayer
+          )}`
         )
       )
       game.mainMessages.set(messagedPlayer, editedMessage)

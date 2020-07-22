@@ -46,13 +46,13 @@ module.exports = async msg => {
   }
 
   game.history = ['Each player received 2 cards and 2 tokens']
+  game.getLastAction = () => game.history[game.history.length - 1]
 
   game.currentPlayerIndex = Math.floor(Math.random() * game.alive.length)
   game.currentPlayer = game.alive[game.currentPlayerIndex]
 
-  game.currentAction = []
-
-  //array should be actionStack and getCurrentAction() should be peek
+  game.actionStack = []
+  game.getCurrentAction = () => game.actionStack[game.actionStack.length - 1]
 
   game.allowers = new Set()
 
