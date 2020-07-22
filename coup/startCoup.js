@@ -5,6 +5,9 @@ const { MessageEmbed } = require('discord.js')
 const refreshMainMessages = require('./commands/refreshMainMessages')
 const endGame = require('../general/commands/endGame')
 const startMove = require('./commands/startMove')
+const allow = require('./commands/allow')
+const challenge = require('./commands/challenge')
+const flip = require('./commands/flip')
 
 module.exports = async msg => {
   const game = runningGames[msg.guild]
@@ -51,8 +54,8 @@ module.exports = async msg => {
   game.getCurrentAction = () => game.actionStack[game.actionStack.length - 1]
   game.setCurrentAction = action =>
     (game.actionStack[game.actionStack.length - 1] = {
-      ...game.getCurrentAction,
-      action,
+      ...game.getCurrentAction(),
+      ...action,
     })
 
   game.allowers = new Set()
@@ -60,6 +63,12 @@ module.exports = async msg => {
   game.refreshMainMessages = async () => await refreshMainMessages(game)
 
   game.startMove = async (move, blockAs) => await startMove(game, move, blockAs)
+
+  game.allow = player => allow(game, player)
+
+  game.challenge = async player => await challenge(game, player)
+
+  game.flip = async player => await flip(game, player)
 
   game.endGame = () => endGame(game)
 

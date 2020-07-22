@@ -15,7 +15,7 @@ const messageTemplates = {
 const actionToString = action => {
   let output = action.player.username + ' is attempting to '
   switch (action.type) {
-    case 'foreign aid':
+    case 'faid':
     case 'tax':
       return output + `collect ${action.type}`
     case 'steal':
@@ -43,6 +43,7 @@ module.exports = async game => {
             `Waiting for players to challenge...`
         : actionToString(action) + '\n\n' + messageTemplates['confirming']
     }
+    return `oof, no message for ${action.status} yet`
   }
 
   const addReactions = async message => {
@@ -75,7 +76,7 @@ module.exports = async game => {
       await mainMessage.delete().catch(() => {
         console.log('failed to find old message')
       })
-      const editedMessage = await messagedPlayer.send(
+      const newMessage = await messagedPlayer.send(
         mainMessage.embeds[0].setDescription(
           `\`\`\`${Array.from(game.players)
             .map(player => {
@@ -96,12 +97,16 @@ module.exports = async game => {
               '\n'
             )}\`\`\`\nLast action:   \`${game.getLastAction()}\`\n\n${situationMessage(
             messagedPlayer
-          )}`
+          )}\n\ndebugging stuff:\`\`\`${JSON.stringify(
+            game.actionStack,
+            null,
+            2
+          )}\`\`\``
         )
       )
-      game.mainMessages.set(messagedPlayer, editedMessage)
-      addReactions(editedMessage)
-      return editedMessage
+      game.mainMessages.set(messagedPlayer, newMessage)
+      await addReactions(newMessage)
+      return newMessage
     })
   )
 }

@@ -47,9 +47,11 @@ module.exports = (client, messageReaction, user) => {
           break
         case '%E2%9C%85':
           console.log('allow')
+          game.allow(user)
           break
         case '%E2%9D%8C':
           console.log('challenge')
+          game.challenge(user)
           break
       }
     }

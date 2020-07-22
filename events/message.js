@@ -74,7 +74,6 @@ module.exports = (client, msg) => {
         'That debugging command can only be used during a running game.'
       )
   } else if (msg.content.toLowerCase() == '??clear') {
-    //only for debugging
     clearPast(msg)
   } else if (msg.content.toLowerCase() == '??unmute') {
     msg.guild.members.cache.forEach(member =>

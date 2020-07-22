@@ -7,18 +7,15 @@
 module.exports = async msg => {
   if (!msg.guild) return msg.reply('Dude ??clear is for channels only')
 
-  // msg.guild.members.fetch()
-  //     .then(members => {
-  //         members.forEach(member => {
-  //             if (!member.user.dmChannel) return
-  //             member.user.dmChannel.messages.fetch()
-  //                 .then(messages => {
-  //                     messages.forEach(message => message.delete().catch(() => {}))
-  //                 })
-  //                 .catch(console.error)
-  //         })
-  //     })
-  //     .catch(console.error)
+  msg.guild.members.cache.forEach(({ user }) => {
+    if (user.dmChannel) {
+      user.dmChannel.messages.fetch({ limit: 100 }).then(messages => {
+        messages.forEach(message => {
+          if (message.deletable) message.delete()
+        })
+      })
+    }
+  })
 
   const playersRole = msg.guild.roles.cache.find(
     r => r.name == 'Players' && r.color == 9215743
