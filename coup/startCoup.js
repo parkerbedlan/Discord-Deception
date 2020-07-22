@@ -3,14 +3,8 @@
 const { runningGames, shuffleArray } = require('../bot')
 const { MessageEmbed } = require('discord.js')
 const refreshMainMessages = require('./commands/refreshMainMessages')
-const dispatch = require('./commands/dispatch')
-const income = require('./commands/income')
-const tax = require('./commands/tax')
-const nextAction = require('./commands/nextAction')
 const endGame = require('../general/commands/endGame')
-const allow = require('./commands/allow')
-const clearAllReactions = require('./commands/clearAllReactions')
-const challenge = require('./commands/challenge')
+const startMove = require('./commands/startMove')
 
 module.exports = async msg => {
   const game = runningGames[msg.guild]
@@ -44,6 +38,8 @@ module.exports = async msg => {
   for (const player of game.players) {
     game.wallets.set(player, 2)
   }
+  game.addToWallet = (player, amount) =>
+    game.wallets.set(player, game.wallets.get(player) + amount)
 
   game.history = ['Each player received 2 cards and 2 tokens']
   game.getLastAction = () => game.history[game.history.length - 1]
@@ -53,26 +49,19 @@ module.exports = async msg => {
 
   game.actionStack = []
   game.getCurrentAction = () => game.actionStack[game.actionStack.length - 1]
+  game.setCurrentAction = action =>
+    (game.actionStack[game.actionStack.length - 1] = {
+      ...game.getCurrentAction,
+      action,
+    })
 
   game.allowers = new Set()
 
-  game.on('refreshMainMessages', async () => await refreshMainMessages(game))
+  game.refreshMainMessages = async () => await refreshMainMessages(game)
 
-  game.on('income', player => income(game, player))
+  game.startMove = async (move, blockAs) => await startMove(game, move, blockAs)
 
-  game.on('tax', player => tax(game, player))
-
-  game.on('nextAction', () => nextAction(game))
-
-  game.on('allow', player => allow(game, player))
-
-  game.on('challenge', player => challenge(game, player))
-
-  game.on('clearAllReactions', () => clearAllReactions(game))
-
-  game.on('dispatch', () => dispatch(game))
-
-  game.on('endGame', () => endGame(game))
+  game.endGame = () => endGame(game)
 
   game.mainMessages = new Map()
   await Promise.all(

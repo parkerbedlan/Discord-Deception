@@ -24,6 +24,8 @@ const actionToString = action => {
       return output + `assassinate ${action.target}`
     case 'exchange':
       return output + `exchange`
+    case 'block':
+      return output + `block ${action.target} with ${action.blockAs}`
   }
 }
 
@@ -34,7 +36,7 @@ module.exports = async game => {
       return player === game.currentPlayer
         ? messageTemplates.yourTurn
         : `It's ${game.currentPlayer.username}'s turn...`
-    } else if (action.confirming) {
+    } else if (action.status === 'challenging') {
       return player === game.currentPlayer
         ? actionToString(action) +
             '\n\n' +
@@ -61,7 +63,7 @@ module.exports = async game => {
         await message.react('🔁').catch(() => {})
       }
     } else {
-      if (action && action.confirming) {
+      if (action && action.status === 'challenging') {
         await message.react('✅').catch(() => {})
         await message.react('❌').catch(() => {})
       }
@@ -98,7 +100,7 @@ module.exports = async game => {
         )
       )
       game.mainMessages.set(messagedPlayer, editedMessage)
-      await addReactions(editedMessage)
+      addReactions(editedMessage)
       return editedMessage
     })
   )
