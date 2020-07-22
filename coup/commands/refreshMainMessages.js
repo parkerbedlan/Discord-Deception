@@ -1,5 +1,3 @@
-const message = require('../../events/message')
-
 const messageTemplates = {
   yourTurn: `**Your turn:**
 :dollar: income
@@ -30,11 +28,6 @@ const actionToString = action => {
 }
 
 module.exports = async game => {
-  const clearReactions = async player => {
-    const mainMessage = await game.mainMessages.get(player).delete()
-    game.mainMessages.set(player, await player.send(mainMessage.embeds[0]))
-  }
-
   const situationMessage = player => {
     const action = game.getCurrentAction()
     if (!action) {
