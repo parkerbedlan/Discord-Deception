@@ -35,7 +35,9 @@ module.exports = async game => {
       '(To delete the roles and channels the bot made for this game, use ?cleanup)'
     )
   } else if (game.type === 'coup') {
-    //getGeneralTextChannel(game.guild).send(`Quality game, ${game.guild.name}. **${winningTeam} wins!**`)
+    Array.from(game.mainMessages).forEach(([messagedPlayer, mainMessage]) =>
+      mainMessage.delete()
+    )
     cleanup(game)
   }
   console.log('Game end.\n---')

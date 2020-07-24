@@ -1,5 +1,3 @@
-const message = require('../../events/message')
-
 const messageTemplates = {
   yourTurn: `**Your turn:**
 :dollar: income
@@ -10,14 +8,14 @@ const messageTemplates = {
 :pirate_flag: steal (blocked by captain and ambassador)
 :dagger: assassinate ($3, blocked by contessa)
 :repeat: exchange (ambassador)`,
-  confirming: `:white_check_mark:  allow
+  challenging: `:white_check_mark:  allow
 :x: challenge`,
 }
 
 const actionToString = action => {
   let output = action.player.username + ' is attempting to '
   switch (action.type) {
-    case 'foreign aid':
+    case 'faid':
     case 'tax':
       return output + `collect ${action.type}`
     case 'steal':
@@ -26,28 +24,32 @@ const actionToString = action => {
       return output + `assassinate ${action.target}`
     case 'exchange':
       return output + `exchange`
+    case 'block':
+      return output + `block ${action.target} with ${action.blockAs}`
   }
 }
 
 module.exports = async game => {
-  const clearReactions = async player => {
-    const mainMessage = await game.mainMessages.get(player).delete()
-    game.mainMessages.set(player, await player.send(mainMessage.embeds[0]))
-  }
-
   const situationMessage = player => {
     const action = game.getCurrentAction()
     if (!action) {
       return player === game.currentPlayer
         ? messageTemplates.yourTurn
         : `It's ${game.currentPlayer.username}'s turn...`
-    } else if (action.confirming) {
+    } else if (action.status === 'challenging') {
       return player === game.currentPlayer
         ? actionToString(action) +
             '\n\n' +
             `Waiting for players to challenge...`
-        : actionToString(action) + '\n\n' + messageTemplates['confirming']
+        : actionToString(action) + '\n\n' + messageTemplates['challenging']
+    } else if (action.status === 'flipping') {
+      return player === action.flipper
+        ? `**Flip a card, any card:**
+        :one: ${game.hands.get(action.flipper)[0].influence}
+        :two: ${game.hands.get(action.flipper)[1].influence}`
+        : `${action.flipper.username} is flipping over a card...`
     }
+    return `oof, no message for ${action.status} yet`
   }
 
   const addReactions = async message => {
@@ -68,10 +70,15 @@ module.exports = async game => {
         await message.react('🔁').catch(() => {})
       }
     } else {
-      if (action && action.confirming) {
+      if (action && action.status === 'challenging') {
         await message.react('✅').catch(() => {})
         await message.react('❌').catch(() => {})
       }
+    }
+
+    if (action && action.status === 'flipping' && action.flipper === player) {
+      await message.react('1️⃣').catch(() => {})
+      await message.react('2️⃣').catch(() => {})
     }
   }
 
@@ -80,7 +87,7 @@ module.exports = async game => {
       await mainMessage.delete().catch(() => {
         console.log('failed to find old message')
       })
-      const editedMessage = await messagedPlayer.send(
+      const newMessage = await messagedPlayer.send(
         mainMessage.embeds[0].setDescription(
           `\`\`\`${Array.from(game.players)
             .map(player => {
@@ -101,12 +108,16 @@ module.exports = async game => {
               '\n'
             )}\`\`\`\nLast action:   \`${game.getLastAction()}\`\n\n${situationMessage(
             messagedPlayer
-          )}`
+          )}\n\ndebugging stuff:\`\`\`${JSON.stringify(
+            game.actionStack,
+            null,
+            2
+          )}\`\`\``
         )
       )
-      game.mainMessages.set(messagedPlayer, editedMessage)
-      await addReactions(editedMessage)
-      return editedMessage
+      game.mainMessages.set(messagedPlayer, newMessage)
+      await addReactions(newMessage)
+      return newMessage
     })
   )
 }

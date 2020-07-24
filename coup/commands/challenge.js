@@ -1,11 +1,5 @@
+const { completionOf, complete } = require('../../general/resources/completion')
 const { shuffleArray } = require('../../bot')
-
-const actionToString = action => {
-  switch (action.type) {
-    case 'tax':
-      return 'collecting tax'
-  }
-}
 
 const actionToInfluence = {
   tax: 'duke',
@@ -20,21 +14,23 @@ const actionToInfluence = {
 const replaceCard = (game, player, originalInfluence) => {
   game.deck.push(originalInfluence)
   game.deck = shuffleArray(game.deck)
-  for (const card in game.hands.get(player)) {
+  for (const card of game.hands.get(player)) {
     if (!card.isFlipped && card.influence === originalInfluence) {
       card.influence = game.deck.pop()
       return
     }
   }
+  throw Error("couldn't find card to replace")
 }
 
-module.exports = (game, challenger) => {
-  if (
-    !game.getCurrentAction() ||
-    !game.getCurrentAction().confirming ||
-    challenger === game.currentPlayer
+module.exports = async (game, challenger) => {
+  console.log(
+    challenger.username,
+    'is challenging',
+    game.currentPlayer.username,
+    'on',
+    game.getCurrentAction().type
   )
-    return
 
   const proof = game.hands
     .get(game.currentPlayer)
@@ -45,28 +41,18 @@ module.exports = (game, challenger) => {
     )
 
   if (proof) {
-    // todo: challenger picks a card to flip over
+    console.log('there was proof')
     replaceCard(game, game.currentPlayer, proof.influence)
-    game.history.push(
-      `${challenger.username} failed to challenge ${
-        game.currentPlayer.username
-      } on ${actionToString(game.getCurrentAction())}, so ${
-        challenger.username
-      } flips a card and ${game.currentPlayer.username} replaces their ${
-        proof.influence
-      } card.`
-    )
-    game.emit('dispatch')
+    game.flip(challenger)
+    await completionOf('flipping')
+    console.log('finished flipping')
+    complete('challenging')
   } else {
-    // todo: currentPlayer picks a card to flip over
-    game.history.push(
-      `${challenger.username} successfully challenged ${
-        game.currentPlayer.username
-      } on ${actionToString(game.getCurrentAction())}, so ${
-        game.currentPlayer.username
-      } flips a card.`
-    )
+    console.log("there wasn't proof")
+    game.setCurrentAction({ toDispatch: false })
+    game.flip(game.currentPlayer)
+    await completionOf('flipping')
+    console.log('finished flipping')
+    complete('challenging')
   }
-
-  throw Error('not yet implemented')
 }
