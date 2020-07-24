@@ -53,6 +53,18 @@ module.exports = (client, messageReaction, user) => {
           console.log('challenge')
           game.challenge(user)
           break
+        case '1%EF%B8%8F%E2%83%A3':
+          console.log('one')
+          if (game.getCurrentAction().status === 'flipping') {
+            game.flip(game.getCurrentAction().flipper, 0)
+          }
+          break
+        case '2%EF%B8%8F%E2%83%A3':
+          console.log('two')
+          if (game.getCurrentAction().status === 'flipping') {
+            game.flip(game.getCurrentAction().flipper, 1)
+          }
+          break
       }
     }
   }

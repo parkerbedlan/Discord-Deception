@@ -27,8 +27,10 @@ const dispatches = {
     game.addToWallet(game.currentPlayer, 2)
     complete('dispatching')
   },
-  coup: game => {
-    flip(game)
+  coup: async game => {
+    game.flip(game.getCurrentAction().target)
+    await completionOf('flipping')
+    complete('dipatching')
   },
   tax: game => {
     game.addToWallet(game.currentPlayer, 3)
@@ -40,8 +42,10 @@ const dispatches = {
     game.addToWallet(action.player, 2)
     complete('dispatching')
   },
-  assassinate: game => {
-    flip(game)
+  assassinate: async game => {
+    game.flip(game.getCurrentAction().target)
+    await completionOf('flipping')
+    complete('dipatching')
   },
   exchange: game => {
     throw Error('exchange not yet implemented')
@@ -78,10 +82,12 @@ module.exports = async (game, move, blockAs = null) => {
     game.setCurrentAction({ status: 'challenging' })
     game.refreshMainMessages()
     await completionOf('challenging')
+    console.log('finished challenging')
   }
 
   // blocking
   if (game.getCurrentAction().toDispatch && blocks[move]) {
+    console.log('blocking...')
     game.allowers = new Set()
     game.setCurrentAction({ status: 'blocking' })
     game.refreshMainMessages()
@@ -90,18 +96,22 @@ module.exports = async (game, move, blockAs = null) => {
 
   // dispatching
   if (game.getCurrentAction().toDispatch) {
+    console.log('dispatching...')
+    game.setCurrentAction({ status: 'dispatching' })
     dispatches[move](game, blockAs)
     await game.refreshMainMessages()
     await completionOf('dispatching')
   }
 
   // check for winner
+  console.log('checking for winner...')
   if (game.alive.length === 1) {
     console.log('winner winner chicken dinner')
     game.winner = game.alive[0].username
     game.endGame()
     return
   }
+  console.log('no winner yet,', game.alive.length, 'players left')
 
   // finishing
   game.actionStack.pop()

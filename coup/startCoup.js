@@ -68,7 +68,7 @@ module.exports = async msg => {
 
   game.challenge = async player => await challenge(game, player)
 
-  game.flip = async player => await flip(game, player)
+  game.flip = async (player, cardIndex) => await flip(game, player, cardIndex)
 
   game.endGame = () => endGame(game)
 

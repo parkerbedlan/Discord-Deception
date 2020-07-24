@@ -8,7 +8,7 @@ const messageTemplates = {
 :pirate_flag: steal (blocked by captain and ambassador)
 :dagger: assassinate ($3, blocked by contessa)
 :repeat: exchange (ambassador)`,
-  confirming: `:white_check_mark:  allow
+  challenging: `:white_check_mark:  allow
 :x: challenge`,
 }
 
@@ -41,7 +41,13 @@ module.exports = async game => {
         ? actionToString(action) +
             '\n\n' +
             `Waiting for players to challenge...`
-        : actionToString(action) + '\n\n' + messageTemplates['confirming']
+        : actionToString(action) + '\n\n' + messageTemplates['challenging']
+    } else if (action.status === 'flipping') {
+      return player === action.flipper
+        ? `**Flip a card, any card:**
+        :one: ${game.hands.get(action.flipper)[0].influence}
+        :two: ${game.hands.get(action.flipper)[1].influence}`
+        : `${action.flipper.username} is flipping over a card...`
     }
     return `oof, no message for ${action.status} yet`
   }
@@ -68,6 +74,11 @@ module.exports = async game => {
         await message.react('✅').catch(() => {})
         await message.react('❌').catch(() => {})
       }
+    }
+
+    if (action && action.status === 'flipping' && action.flipper === player) {
+      await message.react('1️⃣').catch(() => {})
+      await message.react('2️⃣').catch(() => {})
     }
   }
 

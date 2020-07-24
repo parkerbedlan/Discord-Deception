@@ -79,6 +79,17 @@ module.exports = (client, msg) => {
     msg.guild.members.cache.forEach(member =>
       member.edit({ mute: false }).catch(() => {})
     )
+  } else if (msg.content.toLowerCase() === '??cleardms') {
+    client.users.cache.forEach(user => {
+      if (user.dmChannel) {
+        console.log('deleting dms from', user.tag)
+        user.dmChannel.messages.fetch({ limit: 100 }).then(messages => {
+          messages.forEach(message => {
+            if (message.deletable) message.delete()
+          })
+        })
+      }
+    })
   } else if (msg.content.replace(/[?]/g, '').substring(0, 1) != ' ') {
     msg.reply(
       'That\'s not a command. To see the full list of commands, type "?help".'
