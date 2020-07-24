@@ -1,8 +1,4 @@
-// todo: winning condition
-
 const { completionOf, complete } = require('../../general/resources/completion')
-const refreshMainMessages = require('./refreshMainMessages')
-const flip = require('./flip')
 
 const picks = { coup: true, steal: true, assassinate: true }
 const charges = { coup: 7, assassinate: 3 }
