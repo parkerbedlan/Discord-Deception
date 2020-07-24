@@ -10,10 +10,12 @@ module.exports = {
     }),
   complete: event => {
     if (resolvers[event]) {
+      console.log('resolving', event)
       resolvers[event]()
       delete resolvers[event]
       return
     }
+    console.log('presolving', event)
     presolvers[event] = true
   },
 }

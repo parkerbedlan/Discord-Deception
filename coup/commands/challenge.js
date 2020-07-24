@@ -50,6 +50,8 @@ module.exports = async (game, challenger) => {
   } else {
     console.log("there wasn't proof")
     game.setCurrentAction({ toDispatch: false })
+    if (game.getCurrentAction().type === 'assassinate')
+      game.addToWallet(game.currentPlayer, 3)
     game.flip(game.currentPlayer)
     await completionOf('flipping')
     console.log('finished flipping')

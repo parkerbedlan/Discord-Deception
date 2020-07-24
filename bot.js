@@ -19,7 +19,7 @@ module.exports = {
 
   minPlayers: { mafia: 5, coup: 1 },
 
-  maxPlayers: { mafia: 30, coup: 30 },
+  maxPlayers: { mafia: 30, coup: 20 },
 
   generateLobbyMessage(game) {
     const identityEmojis = {

@@ -13,7 +13,7 @@ const messageTemplates = {
 }
 
 const actionToString = action => {
-  let output = action.player.username + ' is attempting to '
+  let output = `${action.player} is attempting to `
   switch (action.type) {
     case 'faid':
     case 'tax':
@@ -35,7 +35,7 @@ module.exports = async game => {
     if (!action) {
       return player === game.currentPlayer
         ? messageTemplates.yourTurn
-        : `It's ${game.currentPlayer.username}'s turn...`
+        : `It's ${game.currentPlayer}'s turn...`
     } else if (action.status === 'challenging') {
       return player === game.currentPlayer
         ? actionToString(action) +
@@ -47,41 +47,92 @@ module.exports = async game => {
         ? `**Flip a card, any card:**
         :one: ${game.hands.get(action.flipper)[0].influence}
         :two: ${game.hands.get(action.flipper)[1].influence}`
-        : `${action.flipper.username} is flipping over a card...`
+        : `${action.flipper} is flipping over a card...`
+    } else if (action.status === 'picking') {
+      return player === game.currentPlayer
+        ? `**Pick your victim.**\n${Array.from(action.picks)
+            .map(([emoji, playerPick]) => emoji + ' ' + playerPick.username)
+            .join('\n')}`
+        : `It's ${game.currentPlayer}'s turn...`
     }
     return `oof, no message for ${action.status} yet`
   }
 
-  const addReactions = async message => {
+  const addReactions = message => {
     const player = message.channel.recipient
     const action = game.getCurrentAction()
     if (player === game.currentPlayer) {
-      if (!game.actionStack.length) {
-        await message.react('💵').catch(() => {})
-        await message.react('💸').catch(() => {})
+      if (!action) {
+        message.react('💵').catch(() => {})
+        message.react('💸').catch(() => {})
         if (game.wallets.get(game.currentPlayer) >= 7)
-          await message.react('🔫').catch(() => {})
-        await message.react('💰').catch(() => {})
-        await message
-          .react('%F0%9F%8F%B4%E2%80%8D%E2%98%A0%EF%B8%8F')
-          .catch(() => {})
+          message.react('🔫').catch(() => {})
+        message.react('💰').catch(() => {})
+        message.react('%F0%9F%8F%B4%E2%80%8D%E2%98%A0%EF%B8%8F').catch(() => {})
         if (game.wallets.get(game.currentPlayer) >= 3)
-          await message.react('🗡').catch(() => {})
-        await message.react('🔁').catch(() => {})
+          message.react('🗡').catch(() => {})
+        message.react('🔁').catch(() => {})
+      } else if (action.status === 'picking') {
+        for (let i = 166; i < 166 + action.picks.size; i++) {
+          message
+            .react(`%F0%9F%87%${i.toString(16).toUpperCase()}`)
+            .catch(() => {})
+        }
       }
     } else {
       if (action && action.status === 'challenging') {
-        await message.react('✅').catch(() => {})
-        await message.react('❌').catch(() => {})
+        message.react('✅').catch(() => {})
+        message.react('❌').catch(() => {})
       }
     }
 
     if (action && action.status === 'flipping' && action.flipper === player) {
-      await message.react('1️⃣').catch(() => {})
-      await message.react('2️⃣').catch(() => {})
+      message.react('1️⃣').catch(() => {})
+      message.react('2️⃣').catch(() => {})
     }
   }
 
+  Array.from(game.mainMessages).forEach(([messagedPlayer, mainMessage]) => {
+    mainMessage
+      .delete()
+      .then(() => {
+        messagedPlayer
+          .send(
+            mainMessage.embeds[0].setDescription(
+              `\`\`\`css\n${Array.from(game.players)
+                .map(player => {
+                  let output =
+                    (player === messagedPlayer ? 'You' : player.username) +
+                    ':\t'
+                  output += '$' + game.wallets.get(player) + '\t'
+                  output += game.hands
+                    .get(player)
+                    .map(card =>
+                      card.isFlipped
+                        ? `[${card.influence}]`
+                        : player === messagedPlayer
+                        ? card.influence
+                        : '❔'
+                    )
+                    .join(', ')
+                  return output
+                })
+                .join(
+                  '\n'
+                )}\`\`\`\nLast action:   \`${game.getLastAction()}\`\n\n${situationMessage(
+                messagedPlayer
+              )}`
+            )
+          )
+          .then(m => {
+            game.mainMessages.set(messagedPlayer, m)
+            addReactions(m)
+          })
+      })
+      .catch(() => console.log('failed to find old message'))
+  })
+
+  /*
   await Promise.all(
     Array.from(game.mainMessages).map(async ([messagedPlayer, mainMessage]) => {
       await mainMessage.delete().catch(() => {
@@ -89,7 +140,7 @@ module.exports = async game => {
       })
       const newMessage = await messagedPlayer.send(
         mainMessage.embeds[0].setDescription(
-          `\`\`\`${Array.from(game.players)
+          `\`\`\`css\n${Array.from(game.players)
             .map(player => {
               let output =
                 (player === messagedPlayer ? 'You' : player.username) + ':\t'
@@ -97,7 +148,9 @@ module.exports = async game => {
               output += game.hands
                 .get(player)
                 .map(card =>
-                  card.isFlipped || player === messagedPlayer
+                  card.isFlipped
+                    ? `[${card.influence}]`
+                    : player === messagedPlayer
                     ? card.influence
                     : '❔'
                 )
@@ -108,16 +161,13 @@ module.exports = async game => {
               '\n'
             )}\`\`\`\nLast action:   \`${game.getLastAction()}\`\n\n${situationMessage(
             messagedPlayer
-          )}\n\ndebugging stuff:\`\`\`${JSON.stringify(
-            game.actionStack,
-            null,
-            2
-          )}\`\`\``
+          )}` //\n\ndebugging stuff:\`\`\`${JSON.stringify(game.actionStack,null,2)}\`\`\``
         )
       )
       game.mainMessages.set(messagedPlayer, newMessage)
-      await addReactions(newMessage)
+      addReactions(newMessage)
       return newMessage
     })
   )
+  */
 }

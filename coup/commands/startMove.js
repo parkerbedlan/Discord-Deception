@@ -24,9 +24,12 @@ const dispatches = {
     complete('dispatching')
   },
   coup: async game => {
-    game.flip(game.getCurrentAction().target)
-    await completionOf('flipping')
-    complete('dipatching')
+    if (game.alive.includes(game.getCurrentAction().target)) {
+      game.flip(game.getCurrentAction().target)
+      await completionOf('flipping')
+      console.log('finished flipping')
+    }
+    complete('dispatching')
   },
   tax: game => {
     game.addToWallet(game.currentPlayer, 3)
@@ -39,9 +42,13 @@ const dispatches = {
     complete('dispatching')
   },
   assassinate: async game => {
-    game.flip(game.getCurrentAction().target)
-    await completionOf('flipping')
-    complete('dipatching')
+    if (game.alive.includes(game.getCurrentAction().target)) {
+      game.flip(game.getCurrentAction().target)
+      await completionOf('flipping')
+      console.log('finished flipping')
+    }
+    complete('dispatching')
+    console.log('triggered complete dispatching')
   },
   exchange: game => {
     throw Error('exchange not yet implemented')
@@ -61,7 +68,18 @@ module.exports = async (game, move, blockAs = null) => {
 
   // picking
   if (picks[move]) {
-    game.setCurrentAction({ status: 'picking' })
+    console.log('picking')
+    let actionPicks = new Map()
+    let charCounter = 97
+    for (const player of game.alive.filter(p => p !== game.currentPlayer)) {
+      actionPicks.set(
+        `:regional_indicator_${String.fromCharCode(charCounter)}:`,
+        player
+      )
+      charCounter++
+    }
+    game.setCurrentAction({ status: 'picking', picks: actionPicks })
+
     game.refreshMainMessages()
     await completionOf('picking')
   }
@@ -69,7 +87,7 @@ module.exports = async (game, move, blockAs = null) => {
   // charging
   if (charges[move]) {
     game.addToWallet(game.currentPlayer, -1 * charges[move])
-    game.refreshMainMessages()
+    // game.refreshMainMessages()
   }
 
   // challenging
@@ -79,15 +97,18 @@ module.exports = async (game, move, blockAs = null) => {
     game.refreshMainMessages()
     await completionOf('challenging')
     console.log('finished challenging')
+    if (game.winner) return
   }
 
   // blocking
-  if (game.getCurrentAction().toDispatch && blocks[move]) {
+  if (false && game.getCurrentAction().toDispatch && blocks[move]) {
     console.log('blocking...')
     game.allowers = new Set()
     game.setCurrentAction({ status: 'blocking' })
     game.refreshMainMessages()
     await completionOf('blocking')
+    game.refreshMainMessages()
+    if (game.winner) return
   }
 
   // dispatching
@@ -95,28 +116,24 @@ module.exports = async (game, move, blockAs = null) => {
     console.log('dispatching...')
     game.setCurrentAction({ status: 'dispatching' })
     dispatches[move](game, blockAs)
-    await game.refreshMainMessages()
+    if (game.winner) return
+    console.log('awaiting completion of dispatching')
     await completionOf('dispatching')
+    console.log('hooray dispatching is completed!')
+    // game.setCurrentAction({status: 'dispatched'})
   }
 
-  // check for winner
-  console.log('checking for winner...')
-  if (game.alive.length === 1) {
-    console.log('winner winner chicken dinner')
-    game.winner = game.alive[0].username
-    game.endGame()
-    return
-  }
-  console.log('no winner yet,', game.alive.length, 'players left')
-
+  console.log('finished dispatching')
   // finishing
   game.actionStack.pop()
   if (move === 'block') {
     complete('blocking')
+    console.log('finished the blocking')
   } else {
     // next player
     game.currentPlayerIndex = (game.currentPlayerIndex + 1) % game.alive.length
     game.currentPlayer = game.alive[game.currentPlayerIndex]
+    console.log('next player:', game.currentPlayer.tag)
     game.refreshMainMessages()
   }
 }

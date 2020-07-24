@@ -1,5 +1,12 @@
 const { runningGames } = require('../bot')
-const { startMove } = require('../coup/commands/startMove')
+const { complete } = require('../general/resources/completion')
+const message = require('./message')
+
+const letterEmojiIdentifierToString = identifier =>
+  `:regional_indicator_${String.fromCharCode(
+    parseInt(identifier.substring(10), 16) - 69
+  )}:`
+
 module.exports = (client, messageReaction, user) => {
   // console.log(messageReaction.emoji.identifier)
   if (messageReaction.message.guildID !== undefined) return
@@ -15,7 +22,7 @@ module.exports = (client, messageReaction, user) => {
       game.readyCount += 1
       if (game.readyCount === game.players.size) game.emit('startNight')
       return
-    } else if (game.type === 'coup') {
+    } else if (game.type === 'coup' && game.alive.includes(user)) {
       switch (messageReaction.emoji.identifier) {
         case '%F0%9F%92%B5':
           console.log('income')
@@ -37,7 +44,7 @@ module.exports = (client, messageReaction, user) => {
           console.log('steal')
           game.startMove('steal')
           break
-        case '%F0%9F%97%A1%EF%B8%8F':
+        case '%F0%9F%97%A1':
           console.log('assassinate')
           game.startMove('assassinate')
           break
@@ -55,16 +62,42 @@ module.exports = (client, messageReaction, user) => {
           break
         case '1%EF%B8%8F%E2%83%A3':
           console.log('one')
-          if (game.getCurrentAction().status === 'flipping') {
+          if (
+            game.getCurrentAction() &&
+            game.getCurrentAction().status === 'flipping' &&
+            user === game.getCurrentAction().flipper
+          ) {
             game.flip(game.getCurrentAction().flipper, 0)
           }
           break
         case '2%EF%B8%8F%E2%83%A3':
           console.log('two')
-          if (game.getCurrentAction().status === 'flipping') {
+          if (
+            game.getCurrentAction().status === 'flipping' &&
+            user === game.getCurrentAction().flipper
+          ) {
             game.flip(game.getCurrentAction().flipper, 1)
           }
           break
+        default:
+          if (
+            messageReaction.emoji.identifier.startsWith('%F0%9F%87%') &&
+            game.getCurrentAction().status === 'picking'
+          ) {
+            game.setCurrentAction({
+              target: game
+                .getCurrentAction()
+                .picks.get(
+                  letterEmojiIdentifierToString(
+                    messageReaction.emoji.identifier
+                  )
+                ),
+            })
+            game.setCurrentAction({ picks: undefined })
+            complete('picking')
+          } else {
+            console.log(messageReaction.emoji.identifier)
+          }
       }
     }
   }

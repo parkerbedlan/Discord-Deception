@@ -19,6 +19,26 @@ const cleanup = root.require('./general/commands/cleanup')
 module.exports = (client, msg) => {
   if (msg.author.bot) return
 
+  if (msg.content === 'memebigboy') {
+    let output = ''
+    for (let c = 97; c < 123; c++)
+      output += `:regional_indicator_${String.fromCharCode(c)}:`
+    msg.channel.send(output).then(m => {
+      for (let i = 166; i < 192; i++) {
+        m.react(`%F0%9F%87%${i.toString(16).toUpperCase()}`)
+        console.log(
+          `:regional_indicator_${String.fromCharCode(
+            parseInt(
+              `%F0%9F%87%${i.toString(16).toUpperCase()}`.substring(10),
+              16
+            ) - 69
+          )}:`
+        )
+      }
+    })
+    return
+  }
+
   if (!msg.guild) {
     if (msg.cleanContent.toLowerCase().startsWith('?accuse')) {
       accuse(msg)
