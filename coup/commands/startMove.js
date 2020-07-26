@@ -54,16 +54,19 @@ const dispatches = {
     throw Error('exchange not yet implemented')
   },
   block: (game, blockAs) => {
-    game.setCurrentAction({ toDispatch: false })
-    throw Error('block not yet implemented')
+    game.setAction(game.actionStack.length - 2, { toDispatch: false })
+    complete('dispatching')
   },
 }
 
 module.exports = async (game, move, blockAs = null) => {
+  const index = game.actionStack.length
+
   game.actionStack.push({
     type: move,
     player: game.currentPlayer,
     toDispatch: true,
+    blockAs,
   })
 
   // picking
@@ -78,7 +81,7 @@ module.exports = async (game, move, blockAs = null) => {
       )
       charCounter++
     }
-    game.setCurrentAction({ status: 'picking', picks: actionPicks })
+    game.setAction(index, { status: 'picking', picks: actionPicks })
 
     game.refreshMainMessages()
     await completionOf('picking')
@@ -93,7 +96,7 @@ module.exports = async (game, move, blockAs = null) => {
   // challenging
   if (challenges[move]) {
     game.allowers = new Set()
-    game.setCurrentAction({ status: 'challenging' })
+    game.setAction(index, { status: 'challenging' })
     game.refreshMainMessages()
     await completionOf('challenging')
     console.log('finished challenging')
@@ -101,26 +104,26 @@ module.exports = async (game, move, blockAs = null) => {
   }
 
   // blocking
-  if (false && game.getCurrentAction().toDispatch && blocks[move]) {
-    console.log('blocking...')
-    game.allowers = new Set()
-    game.setCurrentAction({ status: 'blocking' })
-    game.refreshMainMessages()
+  if (game.actionStack[index].toDispatch && blocks[move]) {
+    if (game.actionStack[index].status !== 'blocking') {
+      game.allowers = new Set()
+      game.setAction(index, { status: 'blocking' })
+      game.refreshMainMessages()
+    }
     await completionOf('blocking')
     game.refreshMainMessages()
     if (game.winner) return
   }
 
   // dispatching
-  if (game.getCurrentAction().toDispatch) {
+  if (game.actionStack[index].toDispatch) {
     console.log('dispatching...')
-    game.setCurrentAction({ status: 'dispatching' })
+    game.setAction(index, { status: 'dispatching' })
     dispatches[move](game, blockAs)
     if (game.winner) return
     console.log('awaiting completion of dispatching')
     await completionOf('dispatching')
     console.log('hooray dispatching is completed!')
-    // game.setCurrentAction({status: 'dispatched'})
   }
 
   console.log('finished dispatching')

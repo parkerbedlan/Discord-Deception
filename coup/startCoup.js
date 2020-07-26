@@ -8,6 +8,7 @@ const startMove = require('./commands/startMove')
 const allow = require('./commands/allow')
 const challenge = require('./commands/challenge')
 const flip = require('./commands/flip')
+const block = require('./commands/block')
 
 module.exports = async msg => {
   const game = runningGames[msg.guild]
@@ -57,18 +58,25 @@ module.exports = async msg => {
       ...game.getCurrentAction(),
       ...action,
     })
+  game.setAction = (index, action) =>
+    (game.actionStack[index] = { ...game.actionStack[index], ...action })
 
   game.allowers = new Set()
 
+  // todo: generalize all the functions below, using the commands folder
+
   game.refreshMainMessages = async () => await refreshMainMessages(game)
 
-  game.startMove = async (move, blockAs) => await startMove(game, move, blockAs)
+  game.startMove = async (player, move, blockAs) =>
+    await startMove(game, player, move, blockAs)
 
   game.allow = player => allow(game, player)
 
   game.challenge = async player => await challenge(game, player)
 
   game.flip = async (player, cardIndex) => await flip(game, player, cardIndex)
+
+  game.block = (player, blockAs) => block(game, player, blockAs)
 
   game.endGame = () => endGame(game)
 

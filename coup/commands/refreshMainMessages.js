@@ -1,3 +1,4 @@
+// eventually replace this with assimilation into reactionEmojis
 const messageTemplates = {
   yourTurn: `**Your turn:**
 :dollar: income
@@ -8,8 +9,6 @@ const messageTemplates = {
 :pirate_flag: steal (blocked by captain and ambassador)
 :dagger: assassinate ($3, blocked by contessa)
 :repeat: exchange (ambassador)`,
-  challenging: `:white_check_mark:  allow
-:x: challenge`,
 }
 
 const actionToString = action => {
@@ -29,6 +28,72 @@ const actionToString = action => {
   }
 }
 
+const reactionEmojis = {
+  allow: {
+    identifier: '%E2%9C%85',
+    display: ':white_check_mark: allow',
+  },
+  challenge: {
+    identifier: '%E2%9D%8C',
+    display: ':x: challenge',
+  },
+  blocks: {
+    duke: {
+      identifier: '%F0%9F%99%85',
+      display: ':no_good: block as duke',
+    },
+    ambassador: {
+      identifier: '%F0%9F%95%8A%EF%B8%8F',
+      display: ':dove: block as ambassador',
+    },
+    captain: {
+      identifier: '%E2%9A%94%EF%B8%8F',
+      display: ':crossed_swords: block as captain',
+    },
+    contessa: {
+      identifier: '%F0%9F%9B%A1%EF%B8%8F',
+      display: ':shield: block as contessa',
+    },
+  },
+}
+
+const actionTypeToBlocks = {
+  faid: { everyone: ['duke'], victimOnly: null },
+  steal: { everyone: null, victimOnly: ['ambassador', 'captain'] },
+  assassinate: { everyone: null, victimOnly: ['contessa'] },
+}
+
+// hopefully replaceable with a getBlocks().map().join()
+const actionToBlockString = (player, action) => {
+  const blocks = actionTypeToBlocks[action.type]
+  if (!blocks) return ''
+
+  output = ''
+  for (const block of blocks.everyone)
+    output += reactionEmojis.blocks[block].display + '\n'
+  if (player === action.target) {
+    for (const block of blocks.victimOnly)
+      output += reactionEmojis.blocks[block].display + '\n'
+  }
+  return output
+}
+
+const getBlocks = (player, action) => {
+  const actionBlocks = actionTypeToBlocks[action.type]
+  if (!actionBlocks) return ''
+
+  blocks = []
+  for (const block of blocks.everyone) {
+    blocks += reactionEmojis.blocks[block]
+  }
+  if (player === action.target) {
+    for (const block of blocks.victimOnly) {
+      blocks += reactionEmojis.blocks[block]
+    }
+  }
+  return blocks
+}
+
 module.exports = async game => {
   const situationMessage = player => {
     const action = game.getCurrentAction()
@@ -36,12 +101,25 @@ module.exports = async game => {
       return player === game.currentPlayer
         ? messageTemplates.yourTurn
         : `It's ${game.currentPlayer}'s turn...`
-    } else if (action.status === 'challenging') {
+    } else if (
+      action.status === 'challenging' ||
+      action.status === 'blocking'
+    ) {
       return player === game.currentPlayer
         ? actionToString(action) +
             '\n\n' +
             `Waiting for players to challenge...`
-        : actionToString(action) + '\n\n' + messageTemplates['challenging']
+        : actionToString(action) +
+            '\n\n' +
+            reactionEmojis.allow.display +
+            '\n' +
+            (action.status === 'blocking'
+              ? reactionEmojis.challenge.display + '\n'
+              : '') +
+            actionToBlockString(player, action) +
+            getBlocks(player, action)
+              .map(block => block.display)
+              .join('\n')
     } else if (action.status === 'flipping') {
       return player === action.flipper
         ? `**Flip a card, any card:**
@@ -80,9 +158,15 @@ module.exports = async game => {
         }
       }
     } else {
-      if (action && action.status === 'challenging') {
+      if (
+        action &&
+        (action.status === 'challenging' || action.status === 'blocking')
+      ) {
         message.react('✅').catch(() => {})
-        message.react('❌').catch(() => {})
+        if (action.status === 'challenging') message.react('❌').catch(() => {})
+        getBlocks(player, action).forEach(block =>
+          message.react(block.identifier).catch(() => {})
+        )
       }
     }
 

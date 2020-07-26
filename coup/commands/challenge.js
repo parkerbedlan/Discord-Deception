@@ -1,14 +1,19 @@
 const { completionOf, complete } = require('../../general/resources/completion')
 const { shuffleArray } = require('../../bot')
 
-const actionToInfluence = {
-  tax: 'duke',
-  steal: 'captain',
-  assassinate: 'assassin',
-  exchange: 'ambassador',
-  'block as duke': 'duke',
-  'block as captain': 'captain',
-  'block as ambassador': 'ambassador',
+const proofs = action => {
+  switch (action.type) {
+    case 'tax':
+      return 'duke'
+    case 'steal':
+      return 'captain'
+    case 'assassinate':
+      return 'assassin'
+    case 'exchange':
+      return 'ambassador'
+    case 'block':
+      return action.blockAs
+  }
 }
 
 const replaceCard = (game, player, originalInfluence) => {
@@ -36,7 +41,7 @@ module.exports = async (game, challenger) => {
     .get(game.currentPlayer)
     .find(
       card =>
-        card.influence === actionToInfluence[game.getCurrentAction().type] &&
+        card.influence === proofs(game.getCurrentAction()) &&
         card.isFlipped === false
     )
 
