@@ -58,43 +58,30 @@ const reactionEmojis = {
 }
 
 const actionTypeToBlocks = {
-  faid: { everyone: ['duke'], victimOnly: null },
-  steal: { everyone: null, victimOnly: ['ambassador', 'captain'] },
-  assassinate: { everyone: null, victimOnly: ['contessa'] },
-}
-
-// hopefully replaceable with a getBlocks().map().join()
-const actionToBlockString = (player, action) => {
-  const blocks = actionTypeToBlocks[action.type]
-  if (!blocks) return ''
-
-  output = ''
-  for (const block of blocks.everyone)
-    output += reactionEmojis.blocks[block].display + '\n'
-  if (player === action.target) {
-    for (const block of blocks.victimOnly)
-      output += reactionEmojis.blocks[block].display + '\n'
-  }
-  return output
+  faid: { everyone: ['duke'], victimOnly: [] },
+  steal: { everyone: [], victimOnly: ['ambassador', 'captain'] },
+  assassinate: { everyone: [], victimOnly: ['contessa'] },
 }
 
 const getBlocks = (player, action) => {
   const actionBlocks = actionTypeToBlocks[action.type]
-  if (!actionBlocks) return ''
+  if (!actionBlocks) return []
 
-  blocks = []
-  for (const block of blocks.everyone) {
-    blocks += reactionEmojis.blocks[block]
+  output = []
+  for (const block of actionBlocks.everyone) {
+    output.push(reactionEmojis.blocks[block])
   }
   if (player === action.target) {
-    for (const block of blocks.victimOnly) {
-      blocks += reactionEmojis.blocks[block]
+    for (const block of actionBlocks.victimOnly) {
+      output.push(reactionEmojis.blocks[block])
     }
   }
-  return blocks
+  return output
 }
 
 module.exports = async game => {
+  if (game.winner) return
+
   const situationMessage = player => {
     const action = game.getCurrentAction()
     if (!action) {
@@ -105,6 +92,9 @@ module.exports = async game => {
       action.status === 'challenging' ||
       action.status === 'blocking'
     ) {
+      console.log('oh boy here we go')
+      console.log(JSON.stringify(getBlocks(player, action)))
+
       return player === game.currentPlayer
         ? actionToString(action) +
             '\n\n' +
@@ -113,10 +103,9 @@ module.exports = async game => {
             '\n\n' +
             reactionEmojis.allow.display +
             '\n' +
-            (action.status === 'blocking'
+            (action.status === 'challenging'
               ? reactionEmojis.challenge.display + '\n'
               : '') +
-            actionToBlockString(player, action) +
             getBlocks(player, action)
               .map(block => block.display)
               .join('\n')
@@ -177,6 +166,7 @@ module.exports = async game => {
   }
 
   Array.from(game.mainMessages).forEach(([messagedPlayer, mainMessage]) => {
+    console.log('messaging', messagedPlayer.tag, '...')
     mainMessage
       .delete()
       .then(() => {
@@ -203,17 +193,19 @@ module.exports = async game => {
                 })
                 .join(
                   '\n'
-                )}\`\`\`\nLast action:   \`${game.getLastAction()}\`\n\n${situationMessage(
+                )}\`\`\`\nLast move:   \`${game.getLastAction()}\`\n\n${situationMessage(
                 messagedPlayer
               )}`
             )
           )
           .then(m => {
             game.mainMessages.set(messagedPlayer, m)
+            console.log('reacting to', m.channel.recipient.tag)
             addReactions(m)
+            console.log('finished reacting to', m.channel.recipient.tag)
           })
       })
-      .catch(() => console.log('failed to find old message'))
+      .catch(() => console.log('FAILED sending message to', messagedPlayer.tag))
   })
 
   /*

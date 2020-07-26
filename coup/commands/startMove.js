@@ -59,12 +59,13 @@ const dispatches = {
   },
 }
 
-module.exports = async (game, move, blockAs = null) => {
+module.exports = async (game, player, move, blockAs = null) => {
   const index = game.actionStack.length
 
   game.actionStack.push({
     type: move,
-    player: game.currentPlayer,
+    player,
+    target: blockAs ? game.getCurrentAction().player : undefined,
     toDispatch: true,
     blockAs,
   })
@@ -110,7 +111,9 @@ module.exports = async (game, move, blockAs = null) => {
       game.setAction(index, { status: 'blocking' })
       game.refreshMainMessages()
     }
+    console.log('awaiting the completion of blocking')
     await completionOf('blocking')
+    console.log('hooray blocking completed')
     game.refreshMainMessages()
     if (game.winner) return
   }
@@ -126,12 +129,12 @@ module.exports = async (game, move, blockAs = null) => {
     console.log('hooray dispatching is completed!')
   }
 
-  console.log('finished dispatching')
+  console.log('finished move', move)
   // finishing
   game.actionStack.pop()
   if (move === 'block') {
     complete('blocking')
-    console.log('finished the blocking')
+    game.currentPlayer = player
   } else {
     // next player
     game.currentPlayerIndex = (game.currentPlayerIndex + 1) % game.alive.length

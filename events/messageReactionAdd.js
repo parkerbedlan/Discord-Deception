@@ -10,11 +10,18 @@ const letterEmojiIdentifierToString = identifier =>
 module.exports = (client, messageReaction, user) => {
   // console.log(messageReaction.emoji.identifier)
   // console.log(messageReaction.message.reactions.cache.get(messageReaction.emoji.name).count)
-  if (
-    messageReaction.message.reactions.cache.get(messageReaction.emoji.name)
-      .count < 2
-  )
-    return
+
+  // todo: if message content doesn't have the emoji, then return
+  // if (messageReaction.message.embeds[0])
+  //   console.log(messageReaction.message.embeds[0].description)
+
+  // don't do this bc sometimes discord fails to react
+  // if (
+  //   messageReaction.message.reactions.cache.get(messageReaction.emoji.name)
+  //     .count < 2
+  // )
+  //   return
+
   if (messageReaction.message.guildID !== undefined) return
   if (user.bot) return
   for (const game of Object.values(runningGames).filter(g =>
