@@ -134,7 +134,7 @@ module.exports = async (game, player, move, blockAs = null) => {
   game.actionStack.pop()
   if (move === 'block') {
     complete('blocking')
-    game.currentPlayer = player
+    game.currentPlayer = game.getCurrentAction().player
   } else {
     // next player
     game.currentPlayerIndex = (game.currentPlayerIndex + 1) % game.alive.length
