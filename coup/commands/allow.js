@@ -1,9 +1,21 @@
-// todo: for victimOnly challenges, only 1 allow needed (from the victim)
-
 const { complete } = require('../../general/resources/completion')
+const victimOnlyBlockMoves = new Set(['steal', 'assassinate'])
 module.exports = (game, player) => {
   if (player !== game.currentPlayer) game.allowers.add(player)
-  if (game.allowers.size === game.alive.length - 1) {
-    complete(game.getCurrentAction().status)
+  else return
+
+  const action = game.getCurrentAction()
+  if (
+    action.status === 'challenging' &&
+    game.allowers.size === game.alive.length - 1
+  ) {
+    complete('challenging')
+    complete('blocking')
+  } else if (
+    action.status === 'blocking' &&
+    (victimOnlyBlockMoves.has(action.type) ||
+      game.allowers.size === game.alive.length - 1)
+  ) {
+    complete('blocking')
   }
 }

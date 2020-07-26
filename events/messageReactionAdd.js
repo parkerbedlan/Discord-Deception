@@ -1,6 +1,5 @@
 const { runningGames } = require('../bot')
 const { complete } = require('../general/resources/completion')
-const message = require('./message')
 
 const letterEmojiIdentifierToString = identifier =>
   `:regional_indicator_${String.fromCharCode(
@@ -16,14 +15,11 @@ module.exports = (client, messageReaction, user) => {
   //   console.log(messageReaction.message.embeds[0].description)
 
   // don't do this bc sometimes discord fails to react
-  // if (
-  //   messageReaction.message.reactions.cache.get(messageReaction.emoji.name)
-  //     .count < 2
-  // )
-  //   return
+  // if (messageReaction.message.reactions.cache.get(messageReaction.emoji.name).count < 2 ) return
 
   if (messageReaction.message.guildID !== undefined) return
   if (user.bot) return
+
   for (const game of Object.values(runningGames).filter(g =>
     g.players.has(user)
   )) {
@@ -36,6 +32,26 @@ module.exports = (client, messageReaction, user) => {
       if (game.readyCount === game.players.size) game.emit('startNight')
       return
     } else if (game.type === 'coup' && game.alive.includes(user)) {
+      const handleNumber = number => {
+        const action = game.getCurrentAction()
+        if (action && action.status === 'flipping' && user === action.flipper) {
+          game.flip(action.flipper, number - 1)
+        } else if (
+          action &&
+          action.status === 'exchanging' &&
+          user === game.currentPlayer
+        ) {
+          const chosenIndicies = messageReaction.message.reactions.cache
+            .filter(reaction => reaction.users.cache.find(user => !user.bot))
+            .map(reaction => +reaction.emoji.identifier.charAt(0) - 1)
+            .filter(val => !isNaN(val))
+
+          if (chosenIndicies.length === action.exchangeOptions.length - 2) {
+            game.exchange(chosenIndicies)
+          }
+        }
+      }
+
       switch (messageReaction.emoji.identifier) {
         case '%F0%9F%92%B5':
           console.log('income')
@@ -73,25 +89,24 @@ module.exports = (client, messageReaction, user) => {
           console.log('challenge')
           game.challenge(user)
           break
+
         case '1%EF%B8%8F%E2%83%A3':
           console.log('one')
-          if (
-            game.getCurrentAction() &&
-            game.getCurrentAction().status === 'flipping' &&
-            user === game.getCurrentAction().flipper
-          ) {
-            game.flip(game.getCurrentAction().flipper, 0)
-          }
+          handleNumber(1)
           break
         case '2%EF%B8%8F%E2%83%A3':
           console.log('two')
-          if (
-            game.getCurrentAction().status === 'flipping' &&
-            user === game.getCurrentAction().flipper
-          ) {
-            game.flip(game.getCurrentAction().flipper, 1)
-          }
+          handleNumber(2)
           break
+        case '3%EF%B8%8F%E2%83%A3':
+          console.log('three')
+          handleNumber(3)
+          break
+        case '4%EF%B8%8F%E2%83%A3':
+          console.log('four')
+          handleNumber(4)
+          break
+
         case '%F0%9F%99%85':
           console.log('duke block')
           game.block(user, 'duke')
@@ -108,6 +123,7 @@ module.exports = (client, messageReaction, user) => {
           console.log('contessa block')
           game.block(user, 'contessa')
           break
+
         default:
           if (
             messageReaction.emoji.identifier.startsWith('%F0%9F%87%') &&

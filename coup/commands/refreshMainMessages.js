@@ -121,6 +121,15 @@ module.exports = async game => {
             .map(([emoji, playerPick]) => emoji + ' ' + playerPick.username)
             .join('\n')}`
         : `It's ${game.currentPlayer}'s turn...`
+    } else if (action.status === 'exchanging') {
+      const numWords = ['zero', 'one', 'two', 'three', 'four']
+      return player === game.currentPlayer
+        ? `**Whaddya want? (pick ${
+            action.exchangeOptions.length - 2
+          })**\n${action.exchangeOptions
+            .map((influence, index) => `:${numWords[index + 1]}: ${influence}`)
+            .join('\n')}`
+        : `${game.currentPlayer} is exchanging their cards...`
     }
     return `oof, no message for ${action.status} yet`
   }
@@ -144,6 +153,10 @@ module.exports = async game => {
           message
             .react(`%F0%9F%87%${i.toString(16).toUpperCase()}`)
             .catch(() => {})
+        }
+      } else if (action.status === 'exchanging') {
+        for (let i = 1; i <= action.exchangeOptions.length; i++) {
+          message.react(`${i}%EF%B8%8F%E2%83%A3`).catch(() => {})
         }
       }
     } else {
@@ -191,11 +204,8 @@ module.exports = async game => {
                     .join(', ')
                   return output
                 })
-                .join(
-                  '\n'
-                )}\`\`\`\nLast move:   \`${game.getLastAction()}\`\n\n${situationMessage(
-                messagedPlayer
-              )}`
+                .join('\n')}\`\`\`\n\n${situationMessage(messagedPlayer)}`
+              //\nLast move:   \`${game.getLastAction()}\`
             )
           )
           .then(m => {

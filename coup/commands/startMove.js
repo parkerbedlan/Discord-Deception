@@ -9,11 +9,7 @@ const challenges = {
   exchange: true,
   block: true,
 }
-const blocks = {
-  faid: ['duke'],
-  steal: ['ambassador', 'captain'],
-  assassinate: ['contessa'],
-}
+const blocks = { faid: true, steal: true, assassinate: true }
 const dispatches = {
   income: game => {
     game.addToWallet(game.currentPlayer, 1)
@@ -50,8 +46,31 @@ const dispatches = {
     complete('dispatching')
     console.log('triggered complete dispatching')
   },
-  exchange: game => {
-    throw Error('exchange not yet implemented')
+  exchange: async game => {
+    // let exchangeOptions = new Map()
+    // let counter = 1
+    // for (card of game.hands.get(game.currentPlayer)) {
+    //   if (!card.isFlipped) {
+    //     exchangeOptions.set(`${counter++}%EF%B8%8F%E2%83%A3`, card.influence)
+    //   }
+    // }
+    // exchangeOptions.set(`${counter++}%EF%B8%8F%E2%83%A3`, game.deck.pop())
+    // exchangeOptions.set(`${counter}%EF%B8%8F%E2%83%A3`, game.deck.pop())
+
+    game.setCurrentAction({
+      status: 'exchanging',
+      exchangeOptions: [
+        ...game.hands
+          .get(game.currentPlayer)
+          .filter(card => !card.isFlipped)
+          .map(card => card.influence),
+        game.deck.pop(),
+        game.deck.pop(),
+      ],
+    })
+    game.refreshMainMessages()
+    await completionOf('exchanging')
+    complete('dispatching')
   },
   block: (game, blockAs) => {
     game.setAction(game.actionStack.length - 2, { toDispatch: false })

@@ -9,6 +9,7 @@ const allow = require('./commands/allow')
 const challenge = require('./commands/challenge')
 const flip = require('./commands/flip')
 const block = require('./commands/block')
+const exchange = require('./commands/exchange')
 
 module.exports = async msg => {
   const game = runningGames[msg.guild]
@@ -77,6 +78,8 @@ module.exports = async msg => {
   game.flip = async (player, cardIndex) => await flip(game, player, cardIndex)
 
   game.block = (player, blockAs) => block(game, player, blockAs)
+
+  game.exchange = chosenIndicies => exchange(game, chosenIndicies)
 
   game.endGame = () => endGame(game)
 
