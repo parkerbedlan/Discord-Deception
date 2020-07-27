@@ -11,6 +11,7 @@ module.exports = (game, player, cardIndex = -1) => {
       game.hands.get(player).map(card => ({ ...card, isFlipped: true }))
     )
     game.alive = game.alive.filter(p => p !== player)
+    game.currentPlayerIndex--
     console.log(
       'new alive players:',
       game.alive.map(player => player.tag)

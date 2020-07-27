@@ -98,11 +98,19 @@ module.exports = async game => {
       return player === game.currentPlayer
         ? actionToString(action) +
             '\n\n' +
-            `Waiting for players to challenge...`
+            `Waiting for player${
+              actionTypeToBlocks[action.type] &&
+              actionTypeToBlocks[action.type].everyone.length
+                ? 's'
+                : ''
+            } to ${action.status === 'challenging' ? 'challenge' : 'block'}...`
         : actionToString(action) +
             '\n\n' +
-            reactionEmojis.allow.display +
-            '\n' +
+            (action.status === 'blocking' &&
+            actionTypeToBlocks[action.type] &&
+            !actionTypeToBlocks[action.type].everyone.length
+              ? `Waiting for ${action.target} to block...`
+              : reactionEmojis.allow.display + '\n') +
             (action.status === 'challenging'
               ? reactionEmojis.challenge.display + '\n'
               : '') +
@@ -141,11 +149,8 @@ module.exports = async game => {
 
     if (player === game.currentPlayer) {
       if (!action) {
-        console.log('income reaction')
         message.react('💵').catch(() => {})
-        console.log('faid reaction')
         message.react('💸').catch(() => {})
-        console.log('coup reaction')
         if (game.wallets.get(game.currentPlayer) >= 7)
           message.react('🔫').catch(() => {})
         message.react('💰').catch(() => {})
@@ -169,9 +174,14 @@ module.exports = async game => {
         action &&
         (action.status === 'challenging' || action.status === 'blocking')
       ) {
-        console.log('allow reaction')
-        message.react('✅').catch(() => {})
-        console.log('challenge reaction')
+        if (
+          !(
+            action.status === 'blocking' &&
+            actionTypeToBlocks[action.type] &&
+            !actionTypeToBlocks[action.type].everyone.length
+          )
+        )
+          message.react('✅').catch(() => {})
         if (action.status === 'challenging') message.react('❌').catch(() => {})
         getBlocks(player, action).forEach(block =>
           message.react(block.identifier).catch(() => {})
@@ -226,43 +236,4 @@ module.exports = async game => {
         console.log('FAILED sending message to', messagedPlayer.tag, error)
       )
   })
-
-  /*
-  await Promise.all(
-    Array.from(game.mainMessages).map(async ([messagedPlayer, mainMessage]) => {
-      await mainMessage.delete().catch(() => {
-        console.log('failed to find old message')
-      })
-      const newMessage = await messagedPlayer.send(
-        mainMessage.embeds[0].setDescription(
-          `\`\`\`css\n${Array.from(game.players)
-            .map(player => {
-              let output =
-                (player === messagedPlayer ? 'You' : player.username) + ':\t'
-              output += '$' + game.wallets.get(player) + '\t'
-              output += game.hands
-                .get(player)
-                .map(card =>
-                  card.isFlipped
-                    ? `[${card.influence}]`
-                    : player === messagedPlayer
-                    ? card.influence
-                    : '❔'
-                )
-                .join(', ')
-              return output
-            })
-            .join(
-              '\n'
-            )}\`\`\`\nLast action:   \`${game.getLastAction()}\`\n\n${situationMessage(
-            messagedPlayer
-          )}` //\n\ndebugging stuff:\`\`\`${JSON.stringify(game.actionStack,null,2)}\`\`\``
-        )
-      )
-      game.mainMessages.set(messagedPlayer, newMessage)
-      addReactions(newMessage)
-      return newMessage
-    })
-  )
-  */
 }
