@@ -10,7 +10,7 @@ module.exports = (game, player) => {
     game.allowers.size === game.alive.length - 1
   ) {
     complete('challenging')
-    complete('blocking')
+    if (victimOnlyBlockMoves.has(action.type)) complete('blocking')
   } else if (
     action.status === 'blocking' &&
     (victimOnlyBlockMoves.has(action.type) ||

@@ -62,8 +62,10 @@ module.exports = (client, messageReaction, user) => {
           game.startMove(user, 'faid')
           break
         case '%F0%9F%94%AB':
-          console.log('coup')
-          game.startMove(user, 'coup')
+          if (game.wallets.get(user) >= 7) {
+            console.log('coup')
+            game.startMove(user, 'coup')
+          }
           break
         case '%F0%9F%92%B0':
           console.log('tax')
@@ -73,9 +75,12 @@ module.exports = (client, messageReaction, user) => {
           console.log('steal')
           game.startMove(user, 'steal')
           break
+        case '%F0%9F%97%A1%EF%B8%8F':
         case '%F0%9F%97%A1':
-          console.log('assassinate')
-          game.startMove(user, 'assassinate')
+          if (game.wallets.get(user) >= 3) {
+            console.log('assassinate')
+            game.startMove(user, 'assassinate')
+          }
           break
         case '%F0%9F%94%81':
           console.log('exchange')

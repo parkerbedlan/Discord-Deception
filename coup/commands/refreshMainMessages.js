@@ -137,10 +137,15 @@ module.exports = async game => {
   const addReactions = message => {
     const player = message.channel.recipient
     const action = game.getCurrentAction()
+    console.log('reacting to', player.tag)
+
     if (player === game.currentPlayer) {
       if (!action) {
+        console.log('income reaction')
         message.react('💵').catch(() => {})
+        console.log('faid reaction')
         message.react('💸').catch(() => {})
+        console.log('coup reaction')
         if (game.wallets.get(game.currentPlayer) >= 7)
           message.react('🔫').catch(() => {})
         message.react('💰').catch(() => {})
@@ -164,7 +169,9 @@ module.exports = async game => {
         action &&
         (action.status === 'challenging' || action.status === 'blocking')
       ) {
+        console.log('allow reaction')
         message.react('✅').catch(() => {})
+        console.log('challenge reaction')
         if (action.status === 'challenging') message.react('❌').catch(() => {})
         getBlocks(player, action).forEach(block =>
           message.react(block.identifier).catch(() => {})
@@ -215,7 +222,9 @@ module.exports = async game => {
             console.log('finished reacting to', m.channel.recipient.tag)
           })
       })
-      .catch(() => console.log('FAILED sending message to', messagedPlayer.tag))
+      .catch(error =>
+        console.log('FAILED sending message to', messagedPlayer.tag, error)
+      )
   })
 
   /*

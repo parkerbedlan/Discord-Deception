@@ -43,7 +43,7 @@ module.exports = (game, player, cardIndex = -1) => {
   console.log('flipping', player.username)
   if (hasFlippedCard(player)) {
     killPlayer(player)
-    complete('flipping')
+    if (!game.winner) complete('flipping')
   } else {
     game.setCurrentAction({ status: 'flipping', flipper: player })
     game.refreshMainMessages()

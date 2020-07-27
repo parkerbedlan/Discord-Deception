@@ -1,4 +1,5 @@
 const { complete } = require('../../general/resources/completion')
+const { shuffleArray } = require('../../bot')
 
 module.exports = (game, chosenIndicies) => {
   const action = game.getCurrentAction()
@@ -18,7 +19,14 @@ module.exports = (game, chosenIndicies) => {
       isFlipped: false,
     })),
   ]
-
   game.hands.set(player, newHand)
+
+  for (const index in action.exchangeOptions) {
+    if (!chosenIndicies.includes(index)) {
+      game.deck.push(action.exchangeOptions[index])
+    }
+  }
+  game.deck = shuffleArray(game.deck)
+
   complete('exchanging')
 }

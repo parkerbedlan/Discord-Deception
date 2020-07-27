@@ -33,8 +33,9 @@ const dispatches = {
   },
   steal: game => {
     const action = game.getCurrentAction()
-    game.addToWallet(action.target, -2)
-    game.addToWallet(action.player, 2)
+    const loot = Math.min(2, game.wallets.get(action.target))
+    game.addToWallet(action.target, -1 * loot)
+    game.addToWallet(action.player, loot)
     complete('dispatching')
   },
   assassinate: async game => {
@@ -47,16 +48,6 @@ const dispatches = {
     console.log('triggered complete dispatching')
   },
   exchange: async game => {
-    // let exchangeOptions = new Map()
-    // let counter = 1
-    // for (card of game.hands.get(game.currentPlayer)) {
-    //   if (!card.isFlipped) {
-    //     exchangeOptions.set(`${counter++}%EF%B8%8F%E2%83%A3`, card.influence)
-    //   }
-    // }
-    // exchangeOptions.set(`${counter++}%EF%B8%8F%E2%83%A3`, game.deck.pop())
-    // exchangeOptions.set(`${counter}%EF%B8%8F%E2%83%A3`, game.deck.pop())
-
     game.setCurrentAction({
       status: 'exchanging',
       exchangeOptions: [
@@ -133,7 +124,7 @@ module.exports = async (game, player, move, blockAs = null) => {
     console.log('awaiting the completion of blocking')
     await completionOf('blocking')
     console.log('hooray blocking completed')
-    game.refreshMainMessages()
+    // game.refreshMainMessages()
     if (game.winner) return
   }
 
