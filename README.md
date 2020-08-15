@@ -10,4 +10,4 @@ Developing da dopest dastardly discord deception debacle
 ---
 # Command List
 - ?mafia: A tried and true classic (rules can be found [here](http://org.ntnu.no/mafia/))
-- ?coup: A card game where all about influence and calling your opponent's bluff (website version can be found [here](https://coup.thebrown.net/))
+- ?coup: A card game about influence and calling your opponent's bluff (website version can be found [here](https://coup.thebrown.net/))
