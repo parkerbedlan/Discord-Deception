@@ -9,6 +9,5 @@ Developing da dopest dastardly discord deception debacle
 
 ---
 # Command List
-- ?help: Lists the Commands of the bot
-- ?ping: Pings the bot
-- ?mafia: A tried and true classic
+- ?mafia: A tried and true classic (rules can be found [here](http://org.ntnu.no/mafia/))
+- ?coup: A card game where all about influence and calling your opponent's bluff (website version can be found [here](https://coup.thebrown.net/))
