@@ -1,4 +1,4 @@
-# Discord-Deception
+# Discord Deception: A Discord bot that hosts deception games.
 Developing da dopest dastardly discord deception debacle
 ---
 [![Alt text](https://img.youtube.com/vi/ps9Z81-WMVs/0.jpg)](https://www.youtube.com/watch?v=ps9Z81-WMVs)
